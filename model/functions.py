@@ -1,12 +1,11 @@
 from transformers import AutoTokenizer, AutoModel
 import torch
 from sklearn.metrics.pairwise import cosine_similarity
+import os
 
+# Absolutna ścieżka do folderu
+local_model_dir = os.path.join(os.path.dirname(__file__), 'models', 'bert-base-polish-cased-v1')
 
-# Ścieżka do lokalnego folderu z modelem
-local_model_dir = './models/bert-base-polish-cased-v1'
-
-# Załaduj model i tokenizer z lokalnej lokalizacji
 tokenizer = AutoTokenizer.from_pretrained(local_model_dir)
 model = AutoModel.from_pretrained(local_model_dir)
 
@@ -72,7 +71,9 @@ def calculate_similarity(embedding1, embedding2):
     """
     Oblicza podobieństwo kosinusowe między dwoma embeddingami.
     """
-    return cosine_similarity(embedding1.numpy(), embedding2.numpy())[0][0]
+    similarity = cosine_similarity(embedding1.numpy(), embedding2.numpy())[0][0]
+    
+    return float(similarity)
 
 
 
@@ -142,4 +143,3 @@ def get_user_profile(user):
         "profile_text": profile_text,
         "user_data": user  # Możesz zwrócić również pełne dane użytkownika
     }
-
