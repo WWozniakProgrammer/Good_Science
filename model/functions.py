@@ -143,3 +143,24 @@ def get_user_profile(user):
         "profile_text": profile_text,
         "user_data": user  # Możesz zwrócić również pełne dane użytkownika
     }
+
+def compare_industries(industry_user, industry_target):
+    """
+    Funkcja porównuje branże dwóch użytkowników, które mogą być zapisane jako tablice.
+    Zwraca wartość podobieństwa (0-1), gdzie 1 oznacza pełne dopasowanie.
+    """
+    # Zamień wszystkie branże na małe litery, aby porównanie było niezależne od wielkości liter
+    industry_user = set([industry.lower() for industry in industry_user])
+    industry_target = set([industry.lower() for industry in industry_target])
+    
+    # Liczymy wspólne branże
+    common_industries = industry_user.intersection(industry_target)
+    
+    # Obliczamy podobieństwo jako stosunek wspólnych branż do wszystkich branż w obu użytkownikach
+    total_industries = industry_user.union(industry_target)
+    
+    if not total_industries:
+        return 0  # Jeśli nie ma żadnych branż, podobieństwo to 0
+    
+    similarity = len(common_industries) / len(total_industries)
+    return similarity
