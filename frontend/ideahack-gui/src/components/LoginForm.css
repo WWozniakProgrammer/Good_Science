@@ -45,6 +45,7 @@ button {
   margin: 10px auto 0;
   display: block;
   border-radius: 20px; /* Większe zaokrąglenie */
+  padding: 8px 12px;
 }
 
 button:hover {

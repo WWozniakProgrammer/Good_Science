@@ -5,6 +5,8 @@ import HomePage from "./pages/HomePage";
 import LoginPage from "./pages/LoginPage";
 import Survey from "./pages/Survey";
 import Register from "./components/Register";
+import MeetingForm from "./components/MeetingForm";
+import Matching from "./components/Matching";
 import NavBar from "./components/NavBar";
 
 function App() {
@@ -21,6 +23,8 @@ function App() {
             <Route path="/login" element={<LoginPage />} />
             <Route path="/survey" element={<Survey />} />
             <Route path="/register" element={<Register />} />
+            <Route path="/meeting" element={<MeetingForm />} />
+            <Route path="/matching" element={<Matching />} />
           </Routes>
         </div>
       </div>
