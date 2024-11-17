@@ -1,3 +1,19 @@
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.register-form {
+  animation: fadeIn 1.0s ease-in-out; /* Animacja ładowania */
+}
+
+
 .register-form {
   background: rgba(81, 92, 92, 0.6); /* Nowy kolor z przezroczystością */
   padding: 20px;
