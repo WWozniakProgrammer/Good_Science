@@ -78,6 +78,12 @@ def calculate_similarity(embedding1, embedding2):
 
 # Funkcja porównująca branże
 def compare_industries(industry_user, industry_target):
+    # Spłaszczanie listy, jeśli zawiera listy w środku
+    if isinstance(industry_user[0], list):
+        industry_user = [item for sublist in industry_user for item in sublist]
+    if isinstance(industry_target[0], list):
+        industry_target = [item for sublist in industry_target for item in sublist]
+
     # Zamień wszystkie branże na małe litery, aby porównanie było niezależne od wielkości liter
     industry_user = set([industry.lower() for industry in industry_user])
     industry_target = set([industry.lower() for industry in industry_target])
@@ -119,5 +125,3 @@ def calculate_weighted_similarity(user_embedding, target_embedding, user_data, t
     
     print(f"Weighted similarity: {weighted_similarity}")
     return weighted_similarity
-
-
