@@ -19,19 +19,19 @@ const HeroSection = () => {
       </div>
       <div className="info-windows">
         <div className="window">
-          <h2 className="window-h2">Dla inwestorów</h2>
+          <h2 className="window-h2">Dla inwestorów 📈</h2>
           <p className="window-p">
             Znajdź startupy i uczelnie szukających Twojego wsparcia
           </p>
         </div>
         <div className="window">
-          <h2 className="window-h2">Dla uczelni</h2>
+          <h2 className="window-h2">Dla uczelni 👩🏻‍🏫</h2>
           <p className="window-p">
             Połącz się z biznesem i inwestorami tworząc współprace
           </p>
         </div>
         <div className="window">
-          <h2 className="window-h2">Dla biznesu</h2>
+          <h2 className="window-h2">Dla biznesu 💼</h2>
           <p className="window-p">
             Odkrywaj szanse rozwoju z inwestorami i uczelnianymi partnerami
           </p>

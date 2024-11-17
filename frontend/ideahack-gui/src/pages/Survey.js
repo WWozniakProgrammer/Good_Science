@@ -1,10 +1,10 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import "./Survey.css";
 import questionsData from "../data/questions.json";
 
 const Survey = () => {
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
-  const [answers, setAnswers] = useState({});
+  const [answers, setAnswers] = useState([]);
   const [additionalText, setAdditionalText] = useState("");
   const [selectedType, setSelectedType] = useState(null);
 
@@ -13,6 +13,12 @@ const Survey = () => {
     "Z biznesu": "biznes",
     "Z środowiska uczelnianego": "uczelnia",
   };
+
+  useEffect(() => {
+    // Initialize answers array with null for all questions
+    const initialAnswers = Array(questionsData.length).fill(null);
+    setAnswers(initialAnswers);
+  }, []);
 
   const getFilteredQuestions = () => {
     if (!selectedType) {
@@ -27,53 +33,77 @@ const Survey = () => {
   const filteredQuestions = getFilteredQuestions();
   const currentQuestion = filteredQuestions[currentQuestionIndex];
 
-  const updateAnswer = (question, answer) => {
-    setAnswers((prev) => ({ ...prev, [question]: answer }));
-  };
-
   const handleOptionClick = (option) => {
-    const question = currentQuestion.pytanie;
+    const updatedAnswers = [...answers];
 
     if (currentQuestion.typ === "typ") {
       const interpretedType = typeMapping[option];
+      console.log("Interpreted type:", interpretedType, answers);
       setSelectedType(interpretedType);
+      updatedAnswers[currentQuestionIndex] = interpretedType;
     }
 
     if (currentQuestion.jednokrotny) {
-      updateAnswer(question, option);
+      // Single select
+      updatedAnswers[currentQuestionIndex] = option;
     } else {
-      const currentAnswers = answers[question] || [];
-      const updatedAnswers = currentAnswers.includes(option)
-        ? currentAnswers.filter((item) => item !== option)
-        : [...currentAnswers, option];
-      updateAnswer(question, updatedAnswers);
+      // Multi-select
+      const currentSelections = updatedAnswers[currentQuestionIndex] || [];
+      updatedAnswers[currentQuestionIndex] = currentSelections.includes(option)
+        ? currentSelections.filter((item) => item !== option)
+        : [...currentSelections, option];
     }
+
+    setAnswers(updatedAnswers);
+    console.log("Current answers:", answers);
   };
 
   const handleTextInput = (event) => {
     const text = event.target.value;
     setAdditionalText(text);
-    updateAnswer(`${currentQuestion.pytanie}_tekst`, text);
+
+    const updatedAnswers = [...answers];
+    updatedAnswers[currentQuestionIndex] = text;
+    setAnswers(updatedAnswers);
   };
 
   const handleNext = () => {
     if (currentQuestionIndex < filteredQuestions.length - 1) {
       setCurrentQuestionIndex((prev) => prev + 1);
-      setAdditionalText("");
+      setAdditionalText(""); // Reset additional text for the next question
     }
   };
 
   const handlePrevious = () => {
     if (currentQuestionIndex > 0) {
       setCurrentQuestionIndex((prev) => prev - 1);
-      setAdditionalText("");
+      setAdditionalText(""); // Reset additional text for the previous question
     }
   };
 
   const handleFinish = () => {
-    console.log("Survey completed with answers:", answers);
-    alert("Dziękujemy za wypełnienie ankiety!");
-    // Additional logic to save answers (e.g., API call) can be added here
+    const surveyResult = {
+      type: answers[0], // Maps to "type" (first question)
+      industry: answers[1], // Maps to "industry"
+      budget: answers[2], // Maps to "budget"
+      location: answers[3], // Maps to "location"
+      notes: answers[4], // Maps to "notes" (last question)
+    };
+
+    console.log("Survey completed with structured JSON:", surveyResult);
+
+    // Example: API call to save the result
+    fetch("/api/save-survey", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(surveyResult),
+    })
+      .then((response) => response.json())
+      .then((data) => {
+        console.log("Server response:", data);
+        alert("Dziękujemy za wypełnienie ankiety!");
+      })
+      .catch((error) => console.error("Error submitting survey:", error));
   };
 
   return (
@@ -87,10 +117,10 @@ const Survey = () => {
               key={index}
               className={`option-button ${
                 currentQuestion.jednokrotny
-                  ? answers[currentQuestion.pytanie] === option
+                  ? answers[currentQuestionIndex] === option
                     ? "selected"
                     : ""
-                  : answers[currentQuestion.pytanie]?.includes(option)
+                  : answers[currentQuestionIndex]?.includes(option)
                   ? "selected"
                   : ""
               }`}
@@ -117,17 +147,12 @@ const Survey = () => {
 
       <div className="navigation-buttons">
         <button onClick={handlePrevious} disabled={currentQuestionIndex === 0}>
-          Previous
+          Wróć
         </button>
-        {currentQuestion.opcje.length === 0 ? (
-          <button onClick={handleFinish}>Finish Survey</button>
+        {currentQuestionIndex === filteredQuestions.length - 1 ? (
+          <button onClick={handleFinish}>Zakończ</button>
         ) : (
-          <button
-            onClick={handleNext}
-            disabled={currentQuestionIndex === filteredQuestions.length - 1}
-          >
-            Next
-          </button>
+          <button onClick={handleNext}>Dalej</button>
         )}
       </div>
     </div>
