@@ -1,5 +1,5 @@
 from flask import Flask, jsonify, request
-from model.functions import validate_user_input, create_user_profile, get_embeddings, calculate_similarity, compare_industries, calculate_weighted_similarity
+from model.functions import validate_user_input, map_target_data, create_user_profile, get_embeddings, calculate_similarity, compare_industries, calculate_weighted_similarity
 from transformers import AutoTokenizer, AutoModel
 #from database.data_base import pobierz_obiekty_po_typie
 from database.data_base import DatabaseManager
@@ -172,25 +172,25 @@ def calculate_user_similarity():
     except Exception as e:
         return jsonify({"error": str(e)}), 400
 
-@app.route('/user/<user_id>', methods=['GET'])
+@app.route('/user/<int:user_id>', methods=['GET'])
 def get_user_profile_by_id(user_id):
     """
-    Endpoint do pobrania profilu użytkownika na podstawie ID.
-    Zamiast bazy danych, zwróćmy przykładowe dane. - zmiana na baze danych później
+    Endpoint do pobrania profilu użytkownika na podstawie ID z bazy danych.
     """
     try:
-        example_user_data = {
-            "id": user_id,
-            "type": "company",
-            "industry": "AI",
-            "budget": "1M-10M",
-            "location": "Warszawa",
-            "notes": "Szukam współpracy z akademikami specjalizującymi się w AI."
-        }
-        
-        return jsonify(example_user_data)
+        # Pobranie danych użytkownika z bazy danych
+        user_data_json = db.pobierz_uzytkownika_po_id(user_id)
+        user_data = json.loads(user_data_json)
+
+        # Sprawdzenie, czy użytkownik został znaleziony
+        if user_data.get("status") == "success":
+            return jsonify(user_data["data"])  # Zwracamy dane użytkownika w formacie JSON
+        else:
+            return jsonify({"error": user_data.get("message", "Nieznany błąd")}), 404
 
     except Exception as e:
+        # Obsługa błędów i logowanie
+        print(f"Error in get_user_profile_by_id: {str(e)}")
         return jsonify({"error": str(e)}), 500
     
 
@@ -199,37 +199,39 @@ def find_similar_targets():
     try:
         user_data = request.json
         validate_user_input(user_data)
-        
-        # Tworzymy profil użytkownika
+
+        # Tworzenie profilu użytkownika i embeddingu
         user_profile = create_user_profile(user_data)
         user_embedding = get_embeddings(user_profile)
-        print("User profile:", user_profile)  # Logowanie embeddingu użytkownika
-        
+
         target_types = user_data.get("target_types", ["company", "academic", "investor"])
         result = {}
 
         for target_type in target_types:
-            target_db = db.pobierz_obiekty_po_typie(target_type)
+            # Pobranie i mapowanie danych celów
+            target_data = db.pobierz_obiekty_po_typie(target_type)
             try:
-                target_users = json.loads(target_db)
+                target_users = json.loads(target_data)
             except json.JSONDecodeError:
-                raise ValueError(f"Data fetched for {target_type} is not valid JSON: {target_db}")
-            
-            print("Targetet users:", target_users)
+                raise ValueError(f"Niepoprawne dane JSON dla {target_type}: {target_data}")
 
             similarities = []
             for target in target_users:
-                target_profile = create_user_profile(target)
-                print("Targetet profile:", target_profile)
+                # Mapowanie danych celu
+                mapped_target = map_target_data(target)
+
+                # Tworzenie profilu celu i embeddingu
+                target_profile = create_user_profile(mapped_target)
                 target_embedding = get_embeddings(target_profile)
-                #print("Target embedding:", target_embedding)  # Logowanie embeddingu targetu
-                
-                # Obliczamy tylko podobieństwo kosinusowe
-                similarity_score = calculate_similarity(user_embedding, target_embedding)
-                
+
+                # Obliczanie podobieństwa z uwzględnieniem wag
+                weighted_similarity = calculate_weighted_similarity(
+                    user_embedding, target_embedding, user_data, mapped_target
+                )
+
                 similarities.append({
                     "id": target.get('id'),
-                    "similarity": similarity_score
+                    "similarity": weighted_similarity
                 })
 
             # Sortowanie wyników i zwrócenie najlepszych
@@ -237,7 +239,6 @@ def find_similar_targets():
             result[target_type] = top_5_similar
 
         return jsonify(result)
-
     except ValueError as e:
         return jsonify({"error": str(e)}), 400
     except Exception as e:

@@ -20,28 +20,20 @@ def get_embeddings(text):
     embeddings = outputs.last_hidden_state.mean(dim=1)  # Używamy średniej z ostatniej warstwy
     return embeddings
 
-def map_fields_to_english(user_data):
-    field_map = {
-        'typ': 'type',
-        'branze': 'industry',
-        'budzet': 'budget',
-        'lokalizacja': 'location',
-        'uwagi': 'notes'
+
+
+def map_target_data(target):
+    return {
+        "type": target.get("typ", ""),  # Mapowanie `typ` na `type`
+        "industry": target.get("branze", []),
+        "budget": target.get("budzet", "N/A"),
+        "location": target.get("lokalizacja", ""),
+        "notes": target.get("uwagi", "")
     }
-    
-    # Tworzymy nowy słownik z zamienionymi polskimi nazwami na angielskie
-    mapped_data = {}
-    for key, value in user_data.items():
-        # Sprawdzamy, czy pole istnieje w mapowaniu i zamieniamy je na angielskie
-        if key in field_map:
-            mapped_data[field_map[key]] = value
-        else:
-            mapped_data[key] = value  # Zostawiamy bez zmian, jeśli pole nie jest mapowane
-    
-    return mapped_data
 
 # Walidacja danych wejściowych
 def validate_user_input(user):
+    print("User valiadteL", user)
     required_fields = ['type', 'industry', 'budget', 'location']
     for field in required_fields:
         if field not in user:
@@ -53,38 +45,39 @@ def validate_user_input(user):
         raise ValueError("Nieprawidłowy typ użytkownika.")
     return True
 
-# Tworzenie profilu użytkownika
 def create_user_profile(user):
     try:
         validate_user_input(user)  # Walidacja danych użytkownika
     except ValueError as e:
-        return f"Błąd walidacji: {e}"  # Zwracamy komunikat o błędzie walidacji
+        raise ValueError(f"Błąd walidacji: {e}")
+
+    # Normalizacja industry: spłaszczanie i konwersja do listy stringów
+    industry = []
+    for item in user['industry']:
+        if isinstance(item, list):  # Sprawdzamy, czy element to lista
+            industry.extend(item)  # Spłaszczamy listę
+        elif isinstance(item, str):  # Sprawdzamy, czy element to string
+            industry.append(item)
+        else:
+            raise ValueError(f"Nieobsługiwany typ danych w 'industry': {type(item)}")
     
-    # Tworzymy profil użytkownika
-    profile_text = f"Typ użytkownika: {user['type'].capitalize()}. "
-    profile_text += f"Branża: {', '.join(user['industry'])}. "
-    profile_text += f"Budżet: {user['budget']}. "
-    profile_text += f"Lokalizacja: {user['location']}. "
-    profile_text += f"Uwagi: {user.get('notes', '')}."
-    
-    print(f"User profile text: {profile_text}")  # Logowanie profilu użytkownika
+    profile_text = (
+        f"Typ użytkownika: {user['type'].capitalize()}. "
+        f"Branża: {', '.join(industry)}. "  # Używamy znormalizowanej listy industry
+        f"Budżet: {user['budget']}. "
+        f"Lokalizacja: {user['location']}. "
+        f"Uwagi: {user.get('notes', '')}."
+    )
     return profile_text
 
 # Funkcja obliczająca podobieństwo kosinusowe
 def calculate_similarity(embedding1, embedding2):
-    """
-    Oblicza podobieństwo kosinusowe między dwoma embeddingami.
-    """
     similarity = cosine_similarity(embedding1.numpy(), embedding2.numpy())[0][0]
     
     return float(similarity)
 
 # Funkcja porównująca branże
 def compare_industries(industry_user, industry_target):
-    """
-    Funkcja porównuje branże dwóch użytkowników, które mogą być zapisane jako tablice.
-    Zwraca wartość podobieństwa (0-1), gdzie 1 oznacza pełne dopasowanie.
-    """
     # Zamień wszystkie branże na małe litery, aby porównanie było niezależne od wielkości liter
     industry_user = set([industry.lower() for industry in industry_user])
     industry_target = set([industry.lower() for industry in industry_target])
