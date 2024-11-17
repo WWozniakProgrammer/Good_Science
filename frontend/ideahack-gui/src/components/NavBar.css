@@ -26,11 +26,25 @@
   align-items: center;
   gap: 20px;
   list-style: none;
+  font-family: Roboto Mono;
+  font-size: 16px;
 }
 
 .nav-links li {
   color: white;
   cursor: pointer;
+  font-family: Roboto Mono;
+  font-size: 16px;
+}
+
+.nav-links li a {
+  text-decoration: none; /* Usuwa podkreślenie */
+  color: white; /* Zachowuje biały kolor linków */
+}
+
+.nav-links li a:hover {
+  text-decoration: none; /* Podkreślenie nie wraca na hover */
+  color: #007bff; /* Opcjonalnie zmienia kolor na hover */
 }
 
 .login-button {
@@ -42,8 +56,13 @@
   font-size: 16px;
   cursor: pointer;
   transition: background-color 0.3s;
+  transform: translateY(-4px);
 }
 
 .login-button:hover {
   background-color: #0056b3;
 }
+
+
+
+

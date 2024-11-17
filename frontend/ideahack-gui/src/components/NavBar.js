@@ -9,17 +9,17 @@ const NavBar = () => {
         <div className="logo">MatchAI 🐨</div>
         <ul className="nav-links">
           <li>
-            <Link to="/about">About</Link>
+            <Link to="/about">O Nas</Link>
           </li>
           <li>
-            <Link to="/features">Features</Link>
+            <Link to="/features">Nowości</Link>
           </li>
           <li>
-            <Link to="/contact">Contact</Link>
+            <Link to="/contact">Kontakt</Link>
           </li>
           <li>
             <Link to="/login">
-              <button className="login-button">Login</button>
+              <button className="login-button">Zaloguj</button>
             </Link>
           </li>
         </ul>
