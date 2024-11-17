@@ -14,7 +14,7 @@ const HeroSection = () => {
       <div className="hero-content">
         <p className="hero-text">
           Jako zespół <span className="hero-text-sspan">MatchAI</span> wierzymy
-          w wizję współpracy między różnymi obszarami. Razem możemy więcej.
+          w wizję współpracy między różnymi obszarami. Razem możemy więcej!
         </p>
       </div>
       <div className="info-windows">

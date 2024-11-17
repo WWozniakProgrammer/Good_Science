@@ -9,21 +9,21 @@
   {
     "typ": "inwestor",
     "pytanie": "W jakiej dziedzinie projektów/firm szukasz?",
-    "opcje": ["Medycyna", "Przemysł kosmiczny", "Informatyka", "Inne"],
+    "opcje": ["Medycyna", "Przemysł kosmiczny", "Informatyka", "AI", "Inne"],
     "jednokrotny": false,
     "tekst": "Miejsce na więcej szczegółów"
   },
   {
     "typ": "biznes",
     "pytanie": "W jakiej dziedzinie tworzysz projekty? (możesz wybrać więcej niż 1)",
-    "opcje": ["Medycyna", "Przemysł kosmiczny", "Informatyka", "Inne"],
+    "opcje": ["Medycyna", "Przemysł kosmiczny", "Informatyka", "AI", "Inne"],
     "jednokrotny": false,
     "tekst": "Miejsce na więcej szczegółów"
   },
   {
     "typ": "uczelnia",
     "pytanie": "W jakiej dziedzinie tworzysz projekty? (możesz wybrać więcej niż 1)",
-    "opcje": ["Medycyna", "Przemysł kosmiczny", "Informatyka", "Inne"],
+    "opcje": ["Medycyna", "Przemysł kosmiczny", "Informatyka", "AI", "Inne"],
     "jednokrotny": false,
     "tekst": "Miejsce na więcej szczegółów"
   },

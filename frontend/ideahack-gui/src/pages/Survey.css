@@ -19,12 +19,22 @@
 }
 
 button {
-  padding: 10px 20px;
-  font-size: 16px;
+  background-color: #56d7dc;
+  font-weight: 700;
   margin: 5px;
+  line-height: 25px;
+  font-size: 16px;
+  padding: 10px 20px;
+  border-radius: 9px;
+  color: white;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
   cursor: pointer;
+  transition: background-color 0.3s ease, transform 0.2s ease;
+  margin: 100px 5px;
+  max-width: fit-content;
+  display: inline-block;
+  text-align: center;
 }
-
 button:disabled {
   background-color: #ccc;
   cursor: not-allowed;

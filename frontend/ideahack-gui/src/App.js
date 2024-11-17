@@ -4,6 +4,7 @@ import "./App.css";
 import HomePage from "./pages/HomePage";
 import LoginPage from "./pages/LoginPage";
 import Survey from "./pages/Survey";
+import Register from "./components/Register";
 import NavBar from "./components/NavBar";
 
 function App() {
@@ -19,6 +20,7 @@ function App() {
             <Route path="/" element={<HomePage />} />
             <Route path="/login" element={<LoginPage />} />
             <Route path="/survey" element={<Survey />} />
+            <Route path="/register" element={<Register />} />
           </Routes>
         </div>
       </div>

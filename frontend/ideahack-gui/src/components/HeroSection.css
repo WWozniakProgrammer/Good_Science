@@ -2,20 +2,36 @@
 @import url("https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;700&display=swap");
 
 /* Global container for both sections */
+.hero {
+  display: flex;
+  flex-direction: column;
+  justify-content: center; /* Wyśrodkowanie w pionie */
+  align-items: center; /* Wyśrodkowanie w poziomie */
+  height: 100vh; /* Pełna wysokość okna przeglądarki */
+  padding: 20px;
+  text-align: center;
+  background: #222; /* Tło (opcjonalne) */
+  color: white;
+  margin: auto;
+}
+
 .page-container {
   /* display: flex; */
   /* flex-direction: column; */
+  margin: auto;
+  justify-content: center;
   align-items: center;
+  text-align: center;
   gap: 50px; /* Space between sections */
   padding: 20px;
 }
 
 .hero-content {
-  /* position: relative; */
-  /* z-index: 1; Ensure content stays above the background */
   display: flex;
-  justify-content: center;
-  width: 100%;
+  flex-direction: column;
+  align-items: center; /* Wyśrodkowanie elementów w poziomie */
+  text-align: center;
+  gap: 20px; /* Odstęp między elementami */
 }
 
 .hero-text {
@@ -46,25 +62,23 @@
 }
 
 .hero-button {
-  text-align: center;
   background-color: #56d7dc;
   font-weight: 700;
   line-height: 25px;
-  padding: 12px 20px; /* Adjust padding for better touch targets */
+  padding: 12px 20px; /* Dostosowanie rozmiaru */
   border-radius: 9px;
   color: white;
-  width: auto; /* Allow the button to adjust its size based on text */
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-  margin: 40px auto 0; /* Center the button and add spacing */
   cursor: pointer;
-  display: inline-block;
   transition: background-color 0.3s ease, transform 0.2s ease;
+  margin: 100px 0px; /* Odstępy (opcjonalne) */
+  max-width: fit-content;
+  display: inline-block; /* Zapobiega zajmowaniu pełnej szerokości */
+  text-align: center;
 }
-
 .hero-button:hover {
-  align-items: center;
   background-color: #45c1c5;
-  transform: translateY(-3px); /* Add a subtle hover effect */
+  transform: translateY(-3px); /* Subtelny efekt hover */
 }
 
 .info-windows {
@@ -88,6 +102,11 @@
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 
+.window:hover {
+  background-color: #c1fdffc4;
+  transform: translateY(-3px);
+}
+
 .window h2 {
   margin-bottom: 10px;
   font-size: 1.2rem;
@@ -102,10 +121,13 @@
   .hero {
     height: auto; /* Allow content to determine height */
     align-items: center;
+    text-align: center;
     padding: 20px;
   }
 
   .hero-content {
+    align-items: center;
+    text-align: center;
     margin-top: 50px;
   }
 
@@ -118,11 +140,14 @@
   }
 
   .hero-content p {
+    align-items: center;
+    text-align: center;
     font-size: 1rem;
   }
 
   .hero-button {
     align-items: center;
+    text-align: center;
     padding: 10px 15px;
     font-size: 1rem;
   }

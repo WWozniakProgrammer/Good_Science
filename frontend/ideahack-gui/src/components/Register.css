@@ -1,4 +1,4 @@
-.login-form {
+.register-form {
   background: rgba(56, 55, 55, 0.8);
   padding: 20px;
   border-radius: 10px;
@@ -9,7 +9,7 @@
   color: white;
 }
 
-.login-form h2 {
+.register-form h2 {
   text-align: center;
   margin-bottom: 20px;
 }
@@ -25,6 +25,7 @@ label {
 }
 
 input,
+select,
 button {
   width: 100%;
   padding: 10px;
@@ -47,23 +48,12 @@ button:hover {
   background-color: #0056b3;
 }
 
-.register-link {
-  text-align: center;
-  margin-top: 15px;
+.register-form .error {
+  color: #ff4c4c;
+  margin-top: 10px;
 }
 
-.register-button {
-  background: transparent;
-  border: 1px solid #007bff;
-  color: #007bff;
-  border-radius: 5px;
-  padding: 8px 12px;
-  font-size: 16px;
-  cursor: pointer;
-  transition: background-color 0.3s, color 0.3s;
-}
-
-.register-button:hover {
-  background: #007bff;
-  color: white;
+.register-form .success {
+  color: #4caf50;
+  margin-top: 10px;
 }
