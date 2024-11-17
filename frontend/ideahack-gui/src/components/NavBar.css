@@ -15,7 +15,8 @@
   padding: 0 20px;
 }
 
-.logo {
+.logo a{
+  text-decoration: none; /* Usuwa podkreślenie */
   font-size: 20px;
   font-weight: bold;
   color: white;
