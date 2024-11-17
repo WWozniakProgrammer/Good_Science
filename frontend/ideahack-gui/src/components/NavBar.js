@@ -6,16 +6,26 @@ const NavBar = () => {
   return (
     <nav className="navbar">
       <div className="navbar-content">
-        <div className="logo">MatchAI 🐨</div>
+        <div className="logo">
+          <Link to="/">
+            <button className="logo-button">MatchAI 🐨</button>
+          </Link>
+        </div>
         <ul className="nav-links">
           <li>
-            <Link to="/about">About</Link>
+            <Link to="/about">
+              <button className="login-button">About</button>
+            </Link>
           </li>
           <li>
-            <Link to="/features">Features</Link>
+            <Link to="/features">
+              <button className="login-button">Features</button>
+            </Link>
           </li>
           <li>
-            <Link to="/contact">Contact</Link>
+            <Link to="/contact">
+              <button className="login-button">Contact</button>
+            </Link>
           </li>
           <li>
             <Link to="/login">

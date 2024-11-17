@@ -1,11 +1,14 @@
 .login-form {
-  background: rgba(56, 55, 55, 0.8);
+  background: rgba(81, 92, 92, 0.6); /* Kolor z przezroczystością */
   padding: 20px;
-  border-radius: 10px;
+  border-radius: 10px; /* Zaokrąglenie okna */
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
   width: 100%;
   max-width: 400px;
-  margin: 20px auto;
+  margin: 300px auto;
+  position: absolute; /* Pozycjonowanie absolutne */
+  left: 50%; /* Wyśrodkowanie w poziomie */
+  transform: translate(-50%, -50%); /* Wyśrodkowanie za pomocą transformacji */
   color: white;
 }
 
@@ -24,13 +27,13 @@ label {
   margin-bottom: 5px;
 }
 
-input,
-button {
+input {
   width: 100%;
   padding: 10px;
   margin-top: 5px;
   font-size: 16px;
   box-sizing: border-box;
+  border-radius: 20px; /* Zaokrąglenie pól */
 }
 
 button {
@@ -38,9 +41,10 @@ button {
   color: white;
   border: none;
   cursor: pointer;
-  border-radius: 5px;
   font-size: 18px;
-  margin-top: 10px;
+  margin: 10px auto 0;
+  display: block;
+  border-radius: 20px; /* Większe zaokrąglenie */
 }
 
 button:hover {
@@ -56,7 +60,7 @@ button:hover {
   background: transparent;
   border: 1px solid #007bff;
   color: #007bff;
-  border-radius: 5px;
+  border-radius: 20px; /* Większe zaokrąglenie */
   padding: 8px 12px;
   font-size: 16px;
   cursor: pointer;

@@ -34,7 +34,7 @@ const LoginForm = () => {
 
   return (
     <form className="login-form" onSubmit={handleSubmit}>
-      <h2>Login to Your Account</h2>
+      <h2>Zaloguj się</h2>
       <div className="form-group">
         <label htmlFor="email">Email</label>
         <input
@@ -46,7 +46,7 @@ const LoginForm = () => {
         />
       </div>
       <div className="form-group">
-        <label htmlFor="password">Password</label>
+        <label htmlFor="password">Hasło</label>
         <input
           type="password"
           id="password"
@@ -55,14 +55,14 @@ const LoginForm = () => {
           required
         />
       </div>
-      <button type="submit">Login</button>
+      <button type="submit">Zaloguj</button>
       {errorMessage && <p className="error">{errorMessage}</p>}
       {successMessage && <p className="success">{successMessage}</p>}
       <div className="register-link">
-        <p>Don't have an account?</p>
+        <p>Nie masz konta?</p>
         <Link to="/register">
           <button type="button" className="register-button">
-            Register
+            Zarajestruj się!
           </button>
         </Link>
       </div>
