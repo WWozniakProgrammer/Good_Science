@@ -25,15 +25,15 @@ const HeroSection = () => {
           </p>
         </div>
         <div className="window">
-          <h2 className="window-h2">Dla uczelni 👩🏻‍🏫</h2>
-          <p className="window-p">
-            Połącz się z biznesem i inwestorami tworząc współprace
-          </p>
-        </div>
-        <div className="window">
           <h2 className="window-h2">Dla biznesu 💼</h2>
           <p className="window-p">
             Odkrywaj szanse rozwoju z inwestorami i uczelnianymi partnerami
+          </p>
+        </div>
+        <div className="window">
+          <h2 className="window-h2">Dla uczelni 👩🏻‍🏫</h2>
+          <p className="window-p">
+            Połącz się z biznesem i inwestorami tworząc współprace
           </p>
         </div>
       </div>

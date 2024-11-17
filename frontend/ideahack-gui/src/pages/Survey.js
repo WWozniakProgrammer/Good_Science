@@ -15,8 +15,7 @@ const Survey = () => {
   };
 
   useEffect(() => {
-    // Initialize answers array with null for all questions
-    const initialAnswers = Array(questionsData.length).fill(null);
+    const initialAnswers = Array(5).fill(null);
     setAnswers(initialAnswers);
   }, []);
 
@@ -38,16 +37,11 @@ const Survey = () => {
 
     if (currentQuestion.typ === "typ") {
       const interpretedType = typeMapping[option];
-      console.log("Interpreted type:", interpretedType, answers);
       setSelectedType(interpretedType);
       updatedAnswers[currentQuestionIndex] = interpretedType;
-    }
-
-    if (currentQuestion.jednokrotny) {
-      // Single select
+    } else if (currentQuestion.jednokrotny) {
       updatedAnswers[currentQuestionIndex] = option;
     } else {
-      // Multi-select
       const currentSelections = updatedAnswers[currentQuestionIndex] || [];
       updatedAnswers[currentQuestionIndex] = currentSelections.includes(option)
         ? currentSelections.filter((item) => item !== option)
@@ -55,7 +49,7 @@ const Survey = () => {
     }
 
     setAnswers(updatedAnswers);
-    console.log("Current answers:", answers);
+    console.log("Current answers:", updatedAnswers, answers);
   };
 
   const handleTextInput = (event) => {
@@ -70,29 +64,21 @@ const Survey = () => {
   const handleNext = () => {
     if (currentQuestionIndex < filteredQuestions.length - 1) {
       setCurrentQuestionIndex((prev) => prev + 1);
-      setAdditionalText(""); // Reset additional text for the next question
-    }
-  };
-
-  const handlePrevious = () => {
-    if (currentQuestionIndex > 0) {
-      setCurrentQuestionIndex((prev) => prev - 1);
-      setAdditionalText(""); // Reset additional text for the previous question
+      setAdditionalText("");
     }
   };
 
   const handleFinish = () => {
     const surveyResult = {
-      type: answers[0], // Maps to "type" (first question)
-      industry: answers[1], // Maps to "industry"
-      budget: answers[2], // Maps to "budget"
-      location: answers[3], // Maps to "location"
-      notes: answers[4], // Maps to "notes" (last question)
+      type: answers[0],
+      industry: answers[1],
+      budget: answers[2],
+      location: answers[3],
+      notes: answers[4],
     };
 
     console.log("Survey completed with structured JSON:", surveyResult);
 
-    // Example: API call to save the result
     fetch("/api/save-survey", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -146,9 +132,6 @@ const Survey = () => {
       )}
 
       <div className="navigation-buttons">
-        <button onClick={handlePrevious} disabled={currentQuestionIndex === 0}>
-          Wróć
-        </button>
         {currentQuestionIndex === filteredQuestions.length - 1 ? (
           <button onClick={handleFinish}>Zakończ</button>
         ) : (
