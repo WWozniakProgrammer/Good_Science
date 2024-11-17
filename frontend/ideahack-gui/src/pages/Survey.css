@@ -18,8 +18,8 @@
   margin-top: 20px;
 }
 
-button {
-  background-color: #56d7dc;
+.option-button {
+  background-color: #308d90;
   font-weight: 700;
   margin: 5px;
   line-height: 25px;
@@ -35,7 +35,40 @@ button {
   display: inline-block;
   text-align: center;
 }
-button:disabled {
+
+.option-button:hover {
+  background-color: #56d7dc;
+  transform: translateY(-3px);
+}
+
+.option-button:focus {
+  background-color: #56d7dc;
+}
+
+.navigation-buttons button {
+  background-color: #308d90;
+  font-weight: 700;
+  margin: 5px;
+  line-height: 25px;
+  font-size: 16px;
+  padding: 10px 20px;
+  border-radius: 9px;
+  color: white;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  cursor: pointer;
+  transition: background-color 0.3s ease, transform 0.2s ease;
+  margin: 100px 5px;
+  max-width: fit-content;
+  display: inline-block;
+  text-align: center;
+}
+
+.navigation-buttons button:disabled {
   background-color: #ccc;
   cursor: not-allowed;
+}
+
+.navigation-buttons button:hover {
+  background-color: #56d7dc;
+  transform: translateY(-3px);
 }
