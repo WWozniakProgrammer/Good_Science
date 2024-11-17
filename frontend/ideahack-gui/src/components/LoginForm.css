@@ -1,3 +1,4 @@
+
 .login-form {
   background: rgba(81, 92, 92, 0.6); /* Kolor z przezroczystością */
   padding: 20px;
@@ -37,7 +38,7 @@ input {
 }
 
 button {
-  background-color: #007bff;
+  background-color: #60d4d4;
   color: white;
   border: none;
   cursor: pointer;
@@ -49,7 +50,7 @@ button {
 }
 
 button:hover {
-  background-color: #0056b3;
+  background-color: #60d4d4;
 }
 
 .register-link {
@@ -59,8 +60,8 @@ button:hover {
 
 .register-button {
   background: transparent;
-  border: 1px solid #007bff;
-  color: #007bff;
+  border: 1px solid #60d4d4;
+  color: #60d4d4;
   border-radius: 20px; /* Większe zaokrąglenie */
   padding: 8px 12px;
   font-size: 16px;
@@ -69,6 +70,6 @@ button:hover {
 }
 
 .register-button:hover {
-  background: #007bff;
+  background: #60d4d4;
   color: white;
 }

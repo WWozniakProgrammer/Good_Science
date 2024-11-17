@@ -14,7 +14,7 @@
   }
 
 .meeting-container {
-    background: linear-gradient(135deg, #5cd2d6, #007bff); /* Gradientowe tło */
+    background: linear-gradient(135deg, #60d4d4, #3091c9); /* Gradientowe tło */
     padding: 20px 30px;
     border-radius: 15px;
     box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3); /* Mocniejszy cień dla głębi */
@@ -96,7 +96,7 @@
   }
   
   button {
-    background-color: #007bff;
+    background-color: #60d4d4;
     color: white;
     border: none;
     cursor: pointer;
@@ -109,11 +109,11 @@
   }
   
   button:hover {
-    background-color: #0056b3;
+    background-color: #60d4d4;
   }
   
   .register-button {
-    background-color: #007bff; /* Taki sam wygląd jak pozostałe */
+    background-color: #60d4d4; /* Taki sam wygląd jak pozostałe */
     color: white;
     border: none;
     cursor: pointer;
@@ -126,7 +126,7 @@
   }
   
   .register-button:hover {
-    background-color: #0056b3;
+    background-color: #60d4d4;
   }
   
   .error {
