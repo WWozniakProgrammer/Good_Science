@@ -4,8 +4,11 @@ from transformers import AutoTokenizer, AutoModel
 #from database.data_base import pobierz_obiekty_po_typie
 from database.data_base import DatabaseManager
 import json
+from flask_cors import CORS
+
 
 app = Flask(__name__)
+CORS(app)
 
 db = DatabaseManager('moja_baza.db')
 
@@ -197,16 +200,45 @@ def get_user_profile_by_id(user_id):
 @app.route('/user/target-similarity', methods=['POST'])
 def find_similar_targets():
     try:
-        user_data = request.json
-        validate_user_input(user_data)
+        # Pobranie ID użytkownika z żądania JSON
+        user_id = request.json.get('user_id')
+        if not user_id:
+            return jsonify({"error": "Brak ID użytkownika"}), 400
+        
+        # Pobranie tylko wymaganych danych użytkownika z bazy na podstawie ID
+        user_data_json = db.pobierz_uzytkownika_po_id(user_id)
+        user_data = json.loads(user_data_json)
+        
+        # Sprawdzenie, czy użytkownik został znaleziony
+        if user_data.get("status") != "success":
+            return jsonify({"error": "Nie znaleziono użytkownika"}), 404
+        
+        # Pobranie rzeczywistych danych użytkownika
+        user_data = user_data["data"]
+
+        # Mapowanie danych z polskich nazw na angielskie
+        mapped_user_data = {
+            "type": user_data.get("typ", ""),
+            "industry": user_data.get("branże", []),
+            "budget": user_data.get("budżet", "N/A"),
+            "location": user_data.get("lokalizacja", ""),
+            "target_types": user_data.get("target_types", ["company", "academic", "investor"])  # Domyślne wartości
+        }
+
+        # Walidacja, czy pola są obecne
+        required_fields = ['type', 'industry', 'budget', 'location', 'target_types']
+        for field in required_fields:
+            if field not in mapped_user_data:
+                return jsonify({"error": f"Brak wymaganego pola: {field}"}), 400
 
         # Tworzenie profilu użytkownika i embeddingu
-        user_profile = create_user_profile(user_data)
+        user_profile = create_user_profile(mapped_user_data)
         user_embedding = get_embeddings(user_profile)
 
-        target_types = user_data.get("target_types", ["company", "academic", "investor"])
-        result = {}
+        # Ustawienie domyślnych typów celów
+        target_types = mapped_user_data["target_types"]
 
+        result = {}
         for target_type in target_types:
             # Pobranie i mapowanie danych celów
             target_data = db.pobierz_obiekty_po_typie(target_type)
@@ -226,7 +258,7 @@ def find_similar_targets():
 
                 # Obliczanie podobieństwa z uwzględnieniem wag
                 weighted_similarity = calculate_weighted_similarity(
-                    user_embedding, target_embedding, user_data, mapped_target
+                    user_embedding, target_embedding, mapped_user_data, mapped_target
                 )
 
                 similarities.append({
@@ -239,10 +271,13 @@ def find_similar_targets():
             result[target_type] = top_5_similar
 
         return jsonify(result)
+    
     except ValueError as e:
         return jsonify({"error": str(e)}), 400
     except Exception as e:
         return jsonify({"error": str(e)}), 500
+
+
 
 
 

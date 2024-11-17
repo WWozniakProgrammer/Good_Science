@@ -79,6 +79,40 @@ class DatabaseManager:
     
         return json.dumps({"status": "error", "message": "Użytkownik nie znaleziony"}, ensure_ascii=False)
     
+    def pobierz_uzytkownika_po_id2(self, user_id: int) -> str:
+        """
+        Pobiera dane użytkownika na podstawie jego ID.
+        Zwraca tylko wymagane pola: type, industry, budget, location, target_types w formacie JSON.
+        """
+        with sqlite3.connect(self.db_name) as conn:
+            cursor = conn.cursor()
+            
+            # Zapytanie SQL pobierające tylko wymagane pola
+            cursor.execute("""
+                SELECT typ, branże, budżet, lokalizacja, uwagi
+                FROM uzytkownicy
+                WHERE id = ?
+            """, (user_id,))
+            
+            # Pobranie jednego wiersza z bazy danych
+            wiersz = cursor.fetchone()
+
+        # Jeśli użytkownik nie został znaleziony, zwróć błąd
+        if not wiersz:
+            return json.dumps({"status": "error", "message": "Nie znaleziono użytkownika"}, ensure_ascii=False)
+
+        # Mapowanie wyników zapytania na słownik
+        user_data = {
+            'type': wiersz[0],
+            'industry': json.loads(wiersz[1]),  # Zakładając, że 'industry' jest zapisane jako JSON w bazie
+            'budget': wiersz[2],
+            'location': wiersz[3],
+            'target_types': json.loads(wiersz[4])  # Zakładając, że 'target_types' jest zapisane jako JSON w bazie
+        }
+
+        # Zwrócenie danych użytkownika w formacie JSON
+        return json.dumps({"status": "success", "data": user_data}, ensure_ascii=False)
+    
     def pobierz_uzytkownika_po_nazwie(self, nazwa: str) -> str:
         """Pobiera użytkownika na podstawie nazwy."""
         with sqlite3.connect(self.db_name) as conn:

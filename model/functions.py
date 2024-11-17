@@ -33,7 +33,6 @@ def map_target_data(target):
 
 # Walidacja danych wejściowych
 def validate_user_input(user):
-    print("User valiadteL", user)
     required_fields = ['type', 'industry', 'budget', 'location']
     for field in required_fields:
         if field not in user:
@@ -47,23 +46,24 @@ def validate_user_input(user):
 
 def create_user_profile(user):
     try:
-        validate_user_input(user)  # Walidacja danych użytkownika
+        # Walidacja danych użytkownika
+        validate_user_input(user)
     except ValueError as e:
         raise ValueError(f"Błąd walidacji: {e}")
 
-    # Normalizacja industry: spłaszczanie i konwersja do listy stringów
+    # Normalizacja 'industry' (spłaszczanie i konwersja do listy stringów)
     industry = []
     for item in user['industry']:
-        if isinstance(item, list):  # Sprawdzamy, czy element to lista
-            industry.extend(item)  # Spłaszczamy listę
-        elif isinstance(item, str):  # Sprawdzamy, czy element to string
+        if isinstance(item, list):  # Spłaszczamy listę
+            industry.extend(item)
+        elif isinstance(item, str):  # Jeśli to string, dodajemy bez zmian
             industry.append(item)
         else:
             raise ValueError(f"Nieobsługiwany typ danych w 'industry': {type(item)}")
     
     profile_text = (
         f"Typ użytkownika: {user['type'].capitalize()}. "
-        f"Branża: {', '.join(industry)}. "  # Używamy znormalizowanej listy industry
+        f"Branża: {', '.join(industry)}. "
         f"Budżet: {user['budget']}. "
         f"Lokalizacja: {user['location']}. "
         f"Uwagi: {user.get('notes', '')}."
