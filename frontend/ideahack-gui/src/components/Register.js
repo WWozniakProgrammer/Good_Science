@@ -6,7 +6,6 @@ const Register = () => {
     username: "",
     email: "",
     password: "",
-    preference: "",
   });
 
   const [errorMessage, setErrorMessage] = useState("");
@@ -30,12 +29,12 @@ const Register = () => {
       const data = await response.json();
 
       if (response.ok) {
-        setSuccessMessage(`Registration successful! User ID: ${data.userId}`);
+        setSuccessMessage(`Rejestracja zakończona! UD użytkownika: ${data.userId}`);
         setErrorMessage("");
         setFormData({ username: "", email: "", password: "", preference: "" });
       } else {
         throw new Error(
-          data.message || "Registration failed. Please try again."
+          data.message || "Błąd podczas rejestracji. Spróbuj ponownie."
         );
       }
     } catch (error) {
@@ -46,9 +45,9 @@ const Register = () => {
 
   return (
     <form className="register-form" onSubmit={handleSubmit}>
-      <h2>Create Your Account</h2>
+      <h2>Utwórz konto</h2>
       <div className="form-group">
-        <label htmlFor="username">Username</label>
+        <label htmlFor="username">Nazwa użytkownika</label>
         <input
           type="text"
           id="username"
@@ -70,7 +69,7 @@ const Register = () => {
         />
       </div>
       <div className="form-group">
-        <label htmlFor="password">Password</label>
+        <label htmlFor="password">Hasło</label>
         <input
           type="password"
           id="password"
@@ -80,24 +79,7 @@ const Register = () => {
           required
         />
       </div>
-      <div className="form-group">
-        <label htmlFor="preference">Preference</label>
-        <select
-          id="preference"
-          name="preference"
-          value={formData.preference}
-          onChange={handleChange}
-          required
-        >
-          <option value="" disabled>
-            Select
-          </option>
-          <option value="investor">Investor</option>
-          <option value="academy">Academy</option>
-          <option value="business">Business</option>
-        </select>
-      </div>
-      <button type="submit">Register</button>
+      <button type="submit">Rejestruj</button>
       {errorMessage && <p className="error">{errorMessage}</p>}
       {successMessage && <p className="success">{successMessage}</p>}
     </form>

@@ -1,11 +1,11 @@
 .register-form {
-  background: rgba(56, 55, 55, 0.8);
+  background: rgba(81, 92, 92, 0.6); /* Nowy kolor z przezroczystością */
   padding: 20px;
   border-radius: 10px;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
   width: 100%;
   max-width: 400px;
-  margin: 20px auto;
+  margin: 300px auto;
   color: white;
 }
 
@@ -25,13 +25,13 @@ label {
 }
 
 input,
-select,
-button {
+select {
   width: 100%;
   padding: 10px;
   margin-top: 5px;
   font-size: 16px;
   box-sizing: border-box;
+  border-radius: 20px; /* Większe zaokrąglenie */
 }
 
 button {
@@ -39,9 +39,10 @@ button {
   color: white;
   border: none;
   cursor: pointer;
-  border-radius: 5px;
   font-size: 18px;
-  margin-top: 10px;
+  margin: 10px auto 0; /* Wyrównanie do środka */
+  display: block; /* Styl blokowy dla centrowania */
+  border-radius: 20px
 }
 
 button:hover {
