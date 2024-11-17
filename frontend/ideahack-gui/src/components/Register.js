@@ -20,7 +20,7 @@ const Register = () => {
     e.preventDefault();
 
     try {
-      const response = await fetch("https://your-endpoint.com/register", {
+      const response = await fetch("http://127.0.0.1:5000/user/register", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(formData),
@@ -29,9 +29,13 @@ const Register = () => {
       const data = await response.json();
 
       if (response.ok) {
-        setSuccessMessage(`Rejestracja zakończona! UD użytkownika: ${data.userId}`);
+        // Save the userId for future use
+        localStorage.setItem("userId", data.userId);
+        setSuccessMessage(
+          `Rejestracja zakończona! ID użytkownika: ${data.userId}`
+        );
         setErrorMessage("");
-        setFormData({ username: "", email: "", password: "", preference: "" });
+        setFormData({ username: "", email: "", password: "" });
       } else {
         throw new Error(
           data.message || "Błąd podczas rejestracji. Spróbuj ponownie."

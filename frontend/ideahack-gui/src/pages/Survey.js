@@ -81,6 +81,12 @@ const Survey = () => {
   };
 
   const handleFinish = () => {
+    const userId = localStorage.getItem("userId"); // Retrieve the stored userId
+
+    if (!userId) {
+      alert("User ID not found. Please log in or register.");
+      return;
+    }
     const surveyResult = {
       type: answersRef.current[0], // Maps to "type"
       industry: answersRef.current[1], // Maps to "industry"
@@ -91,17 +97,27 @@ const Survey = () => {
 
     console.log("Survey completed with structured JSON:", surveyResult);
 
-    fetch("/api/save-survey", {
-      method: "POST",
+    const apiUrl = `http://127.0.0.1:5000/user/update/${userId}`; // Construct the URL with userId
+
+    fetch(apiUrl, {
+      method: "PUT", // Use PUT for updating
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(surveyResult),
     })
-      .then((response) => response.json())
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error("Failed to update survey. Please try again.");
+        }
+        return response.json();
+      })
       .then((data) => {
         console.log("Server response:", data);
         alert("Dziękujemy za wypełnienie ankiety!");
       })
-      .catch((error) => console.error("Error submitting survey:", error));
+      .catch((error) => {
+        console.error("Error submitting survey:", error);
+        alert("Błąd podczas wysyłania ankiety.");
+      });
   };
 
   return (

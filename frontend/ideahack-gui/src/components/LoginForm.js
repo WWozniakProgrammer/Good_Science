@@ -11,7 +11,7 @@ const LoginForm = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const response = await fetch("https://your-endpoint.com/login", {
+      const response = await fetch("http://127.0.0.1:5000/user/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, password }),
@@ -20,9 +20,10 @@ const LoginForm = () => {
       const data = await response.json();
 
       if (response.ok) {
+        // Save the userId for survey submission
+        localStorage.setItem("userId", data.userId);
         setSuccessMessage(`Welcome back! User ID: ${data.userId}`);
         setErrorMessage("");
-        // Optionally redirect or store user info
       } else {
         throw new Error(data.message || "Failed to login. Please try again.");
       }
@@ -70,4 +71,4 @@ const LoginForm = () => {
   );
 };
 
-export default LoginForm; 
+export default LoginForm;

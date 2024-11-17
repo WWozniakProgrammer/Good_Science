@@ -6,7 +6,7 @@ const HeroSection = () => {
   const navigate = useNavigate();
 
   const handleStartSurvey = () => {
-    navigate("/survey");
+    navigate("/login");
   };
 
   return (
