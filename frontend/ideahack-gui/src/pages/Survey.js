@@ -4,17 +4,20 @@ import questionsData from "../data/questions.json";
 
 const Survey = () => {
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
-  const [answers, setAnswers] = useState({}); // Store answers
-  const [additionalText, setAdditionalText] = useState(""); // For text input
-  const [selectedType, setSelectedType] = useState(null); // To store the selected type
+  const [answers, setAnswers] = useState({});
+  const [additionalText, setAdditionalText] = useState("");
+  const [selectedType, setSelectedType] = useState(null);
 
-  // Dynamically filter questions based on the selected type
+  const typeMapping = {
+    Inwestorem: "inwestor",
+    "Z biznesu": "biznes",
+    "Z środowiska uczelnianego": "uczelnia",
+  };
+
   const getFilteredQuestions = () => {
     if (!selectedType) {
-      // Show only the first question to select the type
       return questionsData.filter((q) => q.typ === "typ");
     }
-    // After type is selected, filter type-specific and "wszystkie" questions
     return [
       ...questionsData.filter((q) => q.typ === selectedType),
       ...questionsData.filter((q) => q.typ === "wszystkie"),
@@ -24,18 +27,16 @@ const Survey = () => {
   const filteredQuestions = getFilteredQuestions();
   const currentQuestion = filteredQuestions[currentQuestionIndex];
 
-  // Update answer for the current question
   const updateAnswer = (question, answer) => {
     setAnswers((prev) => ({ ...prev, [question]: answer }));
   };
 
-  // Handle option selection (single/multiple)
   const handleOptionClick = (option) => {
     const question = currentQuestion.pytanie;
 
     if (currentQuestion.typ === "typ") {
-      // For the first question, set the selected type
-      setSelectedType(option);
+      const interpretedType = typeMapping[option];
+      setSelectedType(interpretedType);
     }
 
     if (currentQuestion.jednokrotny) {
@@ -49,25 +50,30 @@ const Survey = () => {
     }
   };
 
-  // Handle text input
   const handleTextInput = (event) => {
     const text = event.target.value;
     setAdditionalText(text);
     updateAnswer(`${currentQuestion.pytanie}_tekst`, text);
   };
 
-  // Navigation
   const handleNext = () => {
     if (currentQuestionIndex < filteredQuestions.length - 1) {
       setCurrentQuestionIndex((prev) => prev + 1);
-      setAdditionalText(""); // Reset text input for the next question
+      setAdditionalText("");
     }
   };
 
   const handlePrevious = () => {
     if (currentQuestionIndex > 0) {
       setCurrentQuestionIndex((prev) => prev - 1);
+      setAdditionalText("");
     }
+  };
+
+  const handleFinish = () => {
+    console.log("Survey completed with answers:", answers);
+    alert("Dziękujemy za wypełnienie ankiety!");
+    // Additional logic to save answers (e.g., API call) can be added here
   };
 
   return (
@@ -75,23 +81,24 @@ const Survey = () => {
       <h1>{currentQuestion.pytanie}</h1>
 
       <div className="options">
-        {currentQuestion.opcje.map((option, index) => (
-          <button
-            key={index}
-            className={`option-button ${
-              currentQuestion.jednokrotny
-                ? answers[currentQuestion.pytanie] === option
+        {currentQuestion.opcje.length > 0 &&
+          currentQuestion.opcje.map((option, index) => (
+            <button
+              key={index}
+              className={`option-button ${
+                currentQuestion.jednokrotny
+                  ? answers[currentQuestion.pytanie] === option
+                    ? "selected"
+                    : ""
+                  : answers[currentQuestion.pytanie]?.includes(option)
                   ? "selected"
                   : ""
-                : answers[currentQuestion.pytanie]?.includes(option)
-                ? "selected"
-                : ""
-            }`}
-            onClick={() => handleOptionClick(option)}
-          >
-            {option}
-          </button>
-        ))}
+              }`}
+              onClick={() => handleOptionClick(option)}
+            >
+              {option}
+            </button>
+          ))}
       </div>
 
       {currentQuestion.tekst && (
@@ -112,15 +119,17 @@ const Survey = () => {
         <button onClick={handlePrevious} disabled={currentQuestionIndex === 0}>
           Previous
         </button>
-        <button
-          onClick={handleNext}
-          disabled={currentQuestionIndex === filteredQuestions.length - 1}
-        >
-          Next
-        </button>
+        {currentQuestion.opcje.length === 0 ? (
+          <button onClick={handleFinish}>Finish Survey</button>
+        ) : (
+          <button
+            onClick={handleNext}
+            disabled={currentQuestionIndex === filteredQuestions.length - 1}
+          >
+            Next
+          </button>
+        )}
       </div>
-
-      <pre className="debug">{JSON.stringify(answers, null, 2)}</pre>
     </div>
   );
 };

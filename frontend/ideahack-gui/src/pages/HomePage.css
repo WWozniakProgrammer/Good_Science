@@ -15,11 +15,3 @@
   z-index: 10;
   background-color: #5cd2d6; /* Optional translucent background */
 }
-
-.info-container {
-  margin-top: -500px; /* Slight overlap with HeroSection for a layered effect */
-  z-index: 2;
-  display: flex;
-  justify-content: center;
-  align-items: flex-start;
-}
