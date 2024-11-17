@@ -1,99 +1,155 @@
 from flask import Flask, jsonify, request
 from model.functions import validate_user_input, create_user_profile, get_embeddings, calculate_similarity, compare_industries
 from transformers import AutoTokenizer, AutoModel
+#from database.data_base import pobierz_obiekty_po_typie
+from database.data_base import DatabaseManager
+import json
 
 app = Flask(__name__)
 
-companies_db = [
-    {
-        "id": 1,
-        "type": "company",
-        "industry": "AI",
-        "budget": "1M-10M",
-        "location": "Warszawa",
-        "notes": "Szukam współpracy z akademikami specjalizującymi się w AI."
-    },
-    {
-        "id": 2,
-        "type": "company",
-        "industry": "AI",
-        "budget": "10M-50M",
-        "location": "Kraków",
-        "notes": "Poszukuję innowacyjnych rozwiązań w AI."
-    },
-    {
-        "id": 3,
-        "type": "company",
-        "industry": "AI",
-        "budget": "500K-1M",
-        "location": "Warszawa",
-        "notes": "Szukam partnerów do rozwoju projektów AI."
-    }
-]
-
-
-academics_db = [
-    {
-        "id": 1,
-        "type": "academic",
-        "industry": "AI",
-        "budget": "1M-10M",
-        "location": "Warszawa",
-        "notes": "Specjalizuję się w badaniach nad sztuczną inteligencją."
-    },
-    {
-        "id": 2,
-        "type": "academic",
-        "industry": "AI",
-        "budget": "500K-1M",
-        "location": "Kraków",
-        "notes": "Poszukuję partnerów do badań w dziedzinie AI."
-    }
-    # Dodaj innych akademików...
-]
-
-
-investors_db = [
-    {
-        "id": 1,
-        "type": "investor",
-        "industry": "AI",
-        "budget": "10M-50M",
-        "location": "Warszawa",
-        "notes": "Inwestuję w start-upy AI."
-    },
-    {
-        "id": 2,
-        "type": "investor",
-        "industry": "AI",
-        "budget": "50M+",
-        "location": "Kraków",
-        "notes": "Szukam inwestycji w projekty AI o dużym potencjale."
-    }
-    # Dodaj innych inwestorów...
-]
+db = DatabaseManager('moja_baza.db')
 
 @app.route('/')
 def index():
     return "API działa!"
 
-@app.route('/user/profile', methods=['POST'])
-def create_profile():
+@app.route('/user/profile/<int:user_id>', methods=['GET'])
+def get_user_profile(user_id):
+    try:
+        # Debugowanie: sprawdź, co zwraca baza danych
+        user_data_json = db.pobierz_uzytkownika_po_id(user_id)  
+        print(f"Debug: Otrzymane dane: {user_data_json}")
+        
+        if user_data_json:
+            user_data = json.loads(user_data_json)
+            return jsonify(user_data["data"])
+        else:
+            return jsonify({"error": "Użytkownik nie znaleziony"}), 404
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+    
+@app.route('/user/register', methods=['POST'])
+def register_user():
     """
-    Endpoint do tworzenia profilu użytkownika na podstawie danych JSON.
+    Rejestruje nowego użytkownika w bazie danych.
     """
     try:
-        user_data = request.json 
-        # Walidacja danych
-        validate_user_input(user_data)
+        user_data = request.json
+        required_fields = ["nazwa", "email", "haslo"]
+        for field in required_fields:
+            if field not in user_data:
+                return jsonify({"error": f"Brak pola: {field}"}), 400
 
-        # Tworzenie profilu
-        profile = create_user_profile(user_data)
+        # Dodajemy użytkownika do bazy
+        token = "TOKEN_" + user_data["email"]  # Generujemy prosty token, można zastąpić JWT
+        user_data_json = json.dumps({
+            "typ": "",
+            "nazwa": user_data["nazwa"],
+            "email": user_data["email"],
+            "haslo": user_data["haslo"],
+            "branze": [],
+            "budzet": "",
+            "lokalizacja": "",
+            "uwagi": "",
+        })
+        response = db.dodaj_uzytkownika(user_data_json, token)
+        response_data = json.loads(response)
+
+        if response_data["status"] == "success":
+            # Pobierz ID nowo dodanego użytkownika
+            added_user = db.pobierz_uzytkownika_po_nazwie(user_data["nazwa"])
+            user_id = json.loads(added_user)["data"]["id"]
+            return jsonify({"id": user_id, "message": "Użytkownik został zarejestrowany pomyślnie."})
+        else:
+            return jsonify({"error": response_data["message"]}), 400
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+    
+@app.route('/user/login', methods=['POST'])
+def login_user():
+    """
+    Loguje użytkownika na podstawie emaila i hasła.
+    """
+    try:
+        user_data = request.json
+        required_fields = ["email", "haslo"]
         
-        return jsonify({"profile": profile})
+        # Sprawdzamy, czy wszystkie wymagane pola są obecne
+        for field in required_fields:
+            if field not in user_data:
+                return jsonify({"error": f"Brak pola: {field}"}), 400
+        
+        # Logowanie dla debugowania - co otrzymujemy w żądaniu
+        print(f"Debug: Otrzymane dane logowania: {user_data}")
 
-    except ValueError as e:
-        return jsonify({"error": str(e)}), 400
+        # Zmieniamy podejście do wywołania sprawdz_uzytkownika()
+        email = user_data.get('email').strip().lower()  # Usuwamy zbędne białe znaki i zmieniamy na małe litery
+        haslo = user_data.get('haslo').strip()
+
+        # Sprawdzamy dane logowania - wywołanie funkcji sprawdz_uzytkownika z dwoma argumentami
+        is_valid_user = db.sprawdz_uzytkownika(email, haslo)  # Wywołanie z dwoma argumentami: email i haslo
+        if is_valid_user:
+            print(f"Debug: Dane logowania prawidłowe dla użytkownika: {email}")
+            
+            # Pobieramy dane użytkownika z bazy na podstawie emaila
+            user_record = db.pobierz_uzytkownika_po_emailu(email)  # Funkcja zwraca dane użytkownika na podstawie emaila
+            print(f"Debug: Otrzymany rekord użytkownika: {user_record}")
+            
+            # Sprawdzamy, czy odpowiedź zawiera status success i dane użytkownika
+            user_record_json = json.loads(user_record)
+            if user_record_json.get("status") == "error":
+                return jsonify({"error": "Nie znaleziono użytkownika w bazie."}), 404
+            
+            # Parsowanie JSON odpowiedzi z bazy danych
+            if "data" not in user_record_json:
+                return jsonify({"error": "Błąd w odpowiedzi bazy danych."}), 500
+
+            user_data_json = user_record_json["data"]
+            user_id = user_data_json["id"]  # Wyciągamy id użytkownika
+
+            # Zwracamy sukces i dane użytkownika (w tym id)
+            return jsonify({"id": user_id, "message": "Zalogowano pomyślnie."})
+        
+        else:
+            print("Debug: Nieprawidłowe dane logowania")
+            return jsonify({"error": "Nieprawidłowe dane logowania."}), 401
+
+    except Exception as e:
+        # Logowanie błędu
+        print(f"Error during login: {str(e)}")
+        return jsonify({"error": str(e)}), 500
+    
+@app.route('/user/update/<int:user_id>', methods=['PUT'])
+def update_user_profile(user_id):
+    """
+    Aktualizuje dane profilu użytkownika.
+    """
+    try:
+        user_data = request.json
+        required_fields = ["type", "industry", "budget", "location", "notes"]
+        for field in required_fields:
+            if field not in user_data:
+                return jsonify({"error": f"Brak pola: {field}"}), 400
+
+        # Aktualizujemy dane użytkownika
+        user_data_json = json.dumps({
+            "typ": user_data["type"],
+            "branze": [user_data["industry"]],
+            "budzet": user_data["budget"],
+            "lokalizacja": user_data["location"],
+            "uwagi": user_data["notes"],
+        })
+        response = db.aktualizuj_uzytkownika(str(user_id), user_data_json)
+        response_data = json.loads(response)
+
+        if response_data["status"] == "success":
+            return jsonify({"message": response_data["message"]})
+        else:
+            return jsonify({"error": response_data["message"]}), 400
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+    
 
 @app.route('/user/similarity', methods=['POST'])
 def calculate_user_similarity():
@@ -140,72 +196,57 @@ def get_user_profile_by_id(user_id):
 
 @app.route('/user/target-similarity', methods=['POST'])
 def find_similar_targets():
-    """
-    Endpoint do obliczania podobieństwa pomiędzy użytkownikiem a wybranym targetem (company, academic, investor).
-    Zwraca 5 najbliższych wyników.
-    """
     try:
-        # Dane użytkownika (np. firma szukająca współpracy)
         user_data = request.json
-        target_type = user_data.get("target_type", "company")  # domyślnie 'company' jeśli brak target_type
+        print(f"Received user data: {user_data}")
         
-        # Walidacja danych użytkownika
-        validate_user_input(user_data)
+        validate_user_input(user_data)  # Sprawdzenie poprawności danych
+        user_profile = create_user_profile(user_data)  # Tworzymy profil użytkownika
         
-        # Tworzymy profil użytkownika
-        user_profile = create_user_profile(user_data)
+
+        user_embedding = get_embeddings(user_profile)  # Generujemy embedding dla profilu użytkownika
+
+        target_types = user_data.get("target_types", ["company", "academic", "investor"])  # Jeśli brak typów, bierzemy wszystkie
+        print(f"Target types for search: {target_types}")
         
-        # Generowanie embeddingu profilu użytkownika
-        user_embedding = get_embeddings(user_profile)
-        
-        similarities = []
-        
-        # Zależnie od typu targetu, przechodzimy po odpowiednich bazach (company, academic, investor)
-        if target_type == 'company':
-            target_db = companies_db  # Używamy bazy firm
-        elif target_type == 'academic':
-            target_db = academics_db  # Baza akademików
-        elif target_type == 'investor':
-            target_db = investors_db  # Baza inwestorów
-        else:
-            return jsonify({"error": "Nieprawidłowy typ targetu"}), 400
-        
-        # Przeszukiwanie bazy targetów (company, academic, investor)
-        for target in target_db:
-            # Tworzymy profil targetu
-            target_profile = create_user_profile(target)
+        result = {}
+
+        #for target_type in target_types:
+           # print(f"Searching for {target_type}s...")
+           # target_db = db.pobierz_obiekty_po_typie(target_type)  # Pobieramy obiekty z bazy danych dla danego typu
+            #similarities = []
             
-            # Generowanie embeddingu dla targetu
-            target_embedding = get_embeddings(target_profile)
+           # for target in target_db:
+              #  target_profile = create_user_profile(target)  # Tworzymy profil dla targetu
+              #  target_embedding = get_embeddings(target_profile)  # Generujemy embedding dla targetu
+                
+                #Obliczamy podobieństwo
+               # similarity_score = calculate_similarity(user_embedding, target_embedding)
+                
+                # Opcjonalnie: Możemy dodać dodatkowe metryki, np. porównanie branż
+              #  industry_similarity = compare_industries(user_data['industry'], target['industry'])
+               # final_similarity = (similarity_score + industry_similarity) / 2  # Możemy zbalansować oba te wyniki
+                
+               # similarities.append({
+                #    "target_id": target['id'],
+                #    "similarity_score": final_similarity
+                #})
             
-            # Obliczanie podobieństwa kosinusowego
-            similarity_score = calculate_similarity(user_embedding, target_embedding)
+            # Sortujemy wyniki i wybieramy top 5
+            #top_5_similar = sorted(similarities, key=lambda x: x['similarity_score'], reverse=True)[:5]
             
-            # Porównanie branż
-            industry_similarity = compare_industries(user_data['industry'], target['industry'])
-            
-            # Finalne podobieństwo uwzględniające zarówno embeddingi, jak i branże
-            final_similarity = (similarity_score + industry_similarity) / 2  # Możesz dostosować wagę
-            
-            # Dodajemy wynik (id targetu i podobieństwo)
-            similarities.append({
-                "target_id": target['id'],
-                "similarity_score": final_similarity
-            })
-        
-        # Sortowanie wyników według podobieństwa malejąco
-        similarities = sorted(similarities, key=lambda x: x['similarity_score'], reverse=True)
-        
-        # Wybieramy 5 najbardziej podobnych targetów
-        top_5_similar = similarities[:5]
-        
-        # Zwracamy 5 targetów z najbliższym podobieństwem
-        return jsonify({"top_5_similar_targets": top_5_similar})
-    
+            # Dodajemy wyniki do wyników dla danego typu
+            #result[target_type] = top_5_similar
+        return jsonify(target_types)
+        #return jsonify(result)  # Zwracamy 5 najlepszych podobnych targetów dla każdego typu
+
     except ValueError as e:
+        print(f"Validation error: {str(e)}")
         return jsonify({"error": str(e)}), 400
     except Exception as e:
+        print(f"General error: {str(e)}")
         return jsonify({"error": str(e)}), 500
+
 
 
 if __name__ == '__main__':

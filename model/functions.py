@@ -77,20 +77,9 @@ def calculate_similarity(embedding1, embedding2):
 
 
 
-def create_profile_for_type(user_type, user):
-    """
-    Funkcja tworzy profil na podstawie typu użytkownika.
-    """
-    profile_text = f"Typ użytkownika: {user_type.capitalize()}. "
-    profile_text += f"Branża: {user['industry']}. "
-    profile_text += f"Budżet: {user['budget']}. "
-    profile_text += f"Lokalizacja: {user['location']}. "
-    profile_text += f"Uwagi: {user.get('notes', '')}."
-    return profile_text
-
 def create_user_profile(user):
     """
-    Tworzy tekstowy profil użytkownika na podstawie danych z ankiety.
+    Tworzy tekstowy profil użytkownika na podstawie danych z ankiety lub bazy danych.
     """
     try:
         validate_user_input(user)  # Sprawdź, czy dane są poprawne
@@ -126,6 +115,16 @@ def create_user_profile(user):
     
     return profile_text
 
+def create_profile_for_type(user_type, user):
+    """
+    Funkcja tworzy profil na podstawie typu użytkownika.
+    """
+    profile_text = f"Typ użytkownika: {user_type.capitalize()}. "
+    profile_text += f"Branża: {user['industry']}. "
+    profile_text += f"Budżet: {user['budget']}. "
+    profile_text += f"Lokalizacja: {user['location']}. "
+    profile_text += f"Uwagi: {user.get('notes', '')}."
+    return profile_text
 
 def get_user_profile(user):
     """
