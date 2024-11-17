@@ -13,23 +13,17 @@ const NavBar = () => {
         </div>
         <ul className="nav-links">
           <li>
-            <Link to="/about">
-              <button className="login-button">About</button>
-            </Link>
+            <Link to="/about">O Nas</Link>
           </li>
           <li>
-            <Link to="/features">
-              <button className="login-button">Features</button>
-            </Link>
+            <Link to="/features">Nowości</Link>
           </li>
           <li>
-            <Link to="/contact">
-              <button className="login-button">Contact</button>
-            </Link>
+            <Link to="/contact">Kontakt</Link>
           </li>
           <li>
             <Link to="/login">
-              <button className="login-button">Login</button>
+              <button className="login-button">Zaloguj</button>
             </Link>
           </li>
         </ul>
