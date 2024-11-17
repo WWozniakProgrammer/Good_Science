@@ -1,12 +1,13 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import "./Survey.css";
 import questionsData from "../data/questions.json";
 
 const Survey = () => {
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
-  const [answers, setAnswers] = useState([]);
-  const [additionalText, setAdditionalText] = useState("");
-  const [selectedType, setSelectedType] = useState(null);
+  const answersRef = useRef(Array(5).fill("")); // Answers stored in a ref
+  const selectedTypeRef = useRef(null); // Store selectedType in a ref
+  const textInputRef = useRef("");
+  const [forceUpdate, setForceUpdate] = useState(false);
 
   const typeMapping = {
     Inwestorem: "inwestor",
@@ -14,67 +15,78 @@ const Survey = () => {
     "Z środowiska uczelnianego": "uczelnia",
   };
 
-  useEffect(() => {
-    const initialAnswers = Array(5).fill(null);
-    setAnswers(initialAnswers);
-  }, []);
-
   const getFilteredQuestions = () => {
-    if (!selectedType) {
+    if (!selectedTypeRef.current) {
       return questionsData.filter((q) => q.typ === "typ");
     }
     return [
-      ...questionsData.filter((q) => q.typ === selectedType),
+      ...questionsData.filter((q) => q.typ === "typ"),
+      ...questionsData.filter((q) => q.typ === selectedTypeRef.current),
       ...questionsData.filter((q) => q.typ === "wszystkie"),
     ];
   };
-
+  useEffect(() => {
+    console.log(
+      "Current question index:",
+      currentQuestionIndex,
+      filteredQuestions
+    );
+  }, [currentQuestionIndex]);
   const filteredQuestions = getFilteredQuestions();
   const currentQuestion = filteredQuestions[currentQuestionIndex];
+  console.log("asdas", currentQuestionIndex);
 
   const handleOptionClick = (option) => {
-    const updatedAnswers = [...answers];
+    const updatedAnswers = [...answersRef.current];
 
-    if (currentQuestion.typ === "typ") {
+    if (currentQuestionIndex === 0) {
+      // Handle the first question separately to set selectedType
       const interpretedType = typeMapping[option];
-      setSelectedType(interpretedType);
-      updatedAnswers[currentQuestionIndex] = interpretedType;
+      selectedTypeRef.current = interpretedType;
+      updatedAnswers[0] = interpretedType;
     } else if (currentQuestion.jednokrotny) {
+      // Single select
       updatedAnswers[currentQuestionIndex] = option;
     } else {
+      // Multi-select
       const currentSelections = updatedAnswers[currentQuestionIndex] || [];
       updatedAnswers[currentQuestionIndex] = currentSelections.includes(option)
         ? currentSelections.filter((item) => item !== option)
         : [...currentSelections, option];
     }
 
-    setAnswers(updatedAnswers);
-    console.log("Current answers:", updatedAnswers, answers);
+    answersRef.current = updatedAnswers;
+    console.log("Updated answers:", answersRef.current[currentQuestionIndex]);
+    setForceUpdate((prev) => !prev);
   };
 
   const handleTextInput = (event) => {
-    const text = event.target.value;
-    setAdditionalText(text);
-
-    const updatedAnswers = [...answers];
-    updatedAnswers[currentQuestionIndex] = text;
-    setAnswers(updatedAnswers);
+    textInputRef.current = event.target.value;
   };
 
   const handleNext = () => {
-    if (currentQuestionIndex < filteredQuestions.length - 1) {
-      setCurrentQuestionIndex((prev) => prev + 1);
-      setAdditionalText("");
+    if (currentQuestion.tekst) {
+      const updatedAnswers = [...answersRef.current];
+      updatedAnswers[currentQuestionIndex] += " " + textInputRef.current;
+      answersRef.current = updatedAnswers;
+    }
+    textInputRef.current = "";
+    setCurrentQuestionIndex((prev) => prev + 1);
+  };
+
+  const handlePrevious = () => {
+    if (currentQuestionIndex > 0) {
+      setCurrentQuestionIndex((prev) => prev - 1);
     }
   };
 
   const handleFinish = () => {
     const surveyResult = {
-      type: answers[0],
-      industry: answers[1],
-      budget: answers[2],
-      location: answers[3],
-      notes: answers[4],
+      type: answersRef.current[0], // Maps to "type"
+      industry: answersRef.current[1], // Maps to "industry"
+      budget: answersRef.current[2], // Maps to "budget"
+      location: answersRef.current[3], // Maps to "location"
+      notes: textInputRef.current, // Maps to "notes"
     };
 
     console.log("Survey completed with structured JSON:", surveyResult);
@@ -98,23 +110,30 @@ const Survey = () => {
 
       <div className="options">
         {currentQuestion.opcje.length > 0 &&
-          currentQuestion.opcje.map((option, index) => (
-            <button
-              key={index}
-              className={`option-button ${
-                currentQuestion.jednokrotny
-                  ? answers[currentQuestionIndex] === option
-                    ? "selected"
-                    : ""
-                  : answers[currentQuestionIndex]?.includes(option)
-                  ? "selected"
-                  : ""
-              }`}
-              onClick={() => handleOptionClick(option)}
-            >
-              {option}
-            </button>
-          ))}
+          currentQuestion.opcje.map(
+            (option, index) => (
+              console.log("option", option),
+              (
+                <button
+                  key={index}
+                  className={`option-button ${
+                    currentQuestion.jednokrotny
+                      ? answersRef.current[currentQuestionIndex] === option
+                        ? "selected"
+                        : ""
+                      : answersRef.current[currentQuestionIndex]?.includes(
+                          option
+                        )
+                      ? "selected"
+                      : ""
+                  }`}
+                  onClick={() => handleOptionClick(option)}
+                >
+                  {option}
+                </button>
+              )
+            )
+          )}
       </div>
 
       {currentQuestion.tekst && (
@@ -123,7 +142,9 @@ const Survey = () => {
             {currentQuestion.tekst}
             <input
               type="text"
-              value={additionalText}
+              defaultValue={
+                answersRef.current[currentQuestionIndex] || ""
+              } /* Keep the current value on input */
               onChange={handleTextInput}
               placeholder="Podaj szczegóły..."
             />
@@ -132,7 +153,10 @@ const Survey = () => {
       )}
 
       <div className="navigation-buttons">
-        {currentQuestionIndex === filteredQuestions.length - 1 ? (
+        <button onClick={handlePrevious} disabled={currentQuestionIndex === 0}>
+          Wróć
+        </button>
+        {currentQuestionIndex === 4 ? (
           <button onClick={handleFinish}>Zakończ</button>
         ) : (
           <button onClick={handleNext}>Dalej</button>
