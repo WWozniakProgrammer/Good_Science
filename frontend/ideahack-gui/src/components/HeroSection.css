@@ -1,0 +1,153 @@
+/* Import the Roboto Mono font */
+@import url("https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;700&display=swap");
+
+.page-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 50px; /* Space between sections */
+  padding: 20px;
+}
+
+.hero {
+  position: relative;
+  width: 100%;
+  height: calc(100vh - 60px); /* Adjust height considering the navbar height */
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  text-align: center;
+  color: white;
+  overflow: hidden;
+  padding: 20px; /* Add padding for better spacing on smaller screens */
+}
+
+.hero-content {
+  position: relative;
+  z-index: 1; /* Ensure content stays above the background */
+  max-width: 750px;
+  width: 100%;
+}
+
+.hero-text {
+  font-family: "Roboto Mono", monospace; /* Set Roboto Mono font */
+  margin-top: 100px; /* Adjust the margin as needed */
+  font-size: 1.5rem;
+  line-height: 1.6;
+}
+
+.hero-text > span {
+  font-weight: bold;
+  color: #56d7dc; /* Add a color highlight for better visual distinction */
+}
+
+.hero-content h1 {
+  font-size: 2.5rem;
+  font-weight: bold;
+  margin-bottom: 20px;
+}
+
+.hero-content p {
+  font-size: 1.2rem;
+  margin-top: 10px;
+  line-height: 1.6;
+}
+
+.hero-button {
+  background-color: #56d7dc;
+  font-weight: 700;
+  line-height: 25px;
+  padding: 12px 20px; /* Adjust padding for better touch targets */
+  border-radius: 9px;
+  color: white;
+  width: auto; /* Allow the button to adjust its size based on text */
+  text-align: center;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  margin: 40px auto 0; /* Center the button and add spacing */
+  cursor: pointer;
+  display: inline-block;
+  transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+.hero-button:hover {
+  background-color: #45c1c5;
+  transform: translateY(-3px); /* Add a subtle hover effect */
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .hero {
+    height: auto; /* Allow content to determine height */
+    align-items: center;
+    padding: 20px;
+  }
+
+  .hero-content {
+    margin-top: 50px;
+  }
+
+  .hero-text {
+    font-size: 1.2rem;
+  }
+
+  .hero-content h1 {
+    font-size: 2rem;
+  }
+
+  .hero-content p {
+    font-size: 1rem;
+  }
+
+  .hero-button {
+    padding: 10px 15px;
+    font-size: 1rem;
+  }
+}
+.info-windows {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 20px;
+  width: 100%;
+  max-width: 1200px;
+  margin: -100px auto 0;
+  padding: 0 20px;
+}
+
+.window {
+  background-color: #97fcffc4;
+  padding: 20px;
+  border-radius: 40px;
+  color: white;
+  text-align: center;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.window h2 {
+  margin-bottom: 10px;
+  font-size: 1.2rem;
+}
+
+.window p {
+  font-size: 1rem;
+}
+
+/* Media queries for better scalability */
+@media (max-width: 768px) {
+  .info-windows {
+    margin-top: -50px; /* Adjust margin for smaller screens */
+    padding: 0 10px;
+  }
+
+  .window {
+    padding: 15px;
+    border-radius: 20px;
+  }
+
+  .window h2 {
+    font-size: 1rem;
+  }
+
+  .window p {
+    font-size: 0.9rem;
+  }
+}

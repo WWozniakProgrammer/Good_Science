@@ -1,0 +1,78 @@
+[
+  {
+    "typ": "typ",
+    "pytanie": "Kim jesteś? (wybierz jedną odpowiedź)",
+    "opcje": ["Inwestorem", "Z biznesu", "Z środowiska uczelnianego"],
+    "jednokrotny": true,
+    "tekst": ""
+  },
+  {
+    "typ": "inwestor",
+    "pytanie": "W jakiej dziedzinie projektów/firm szukasz?",
+    "opcje": ["Medycyna", "Przemysł kosmiczny", "Informatyka", "Inne"],
+    "jednokrotny": false,
+    "tekst": "Miejsce na więcej szczegółów"
+  },
+  {
+    "typ": "biznes",
+    "pytanie": "W jakiej dziedzinie tworzysz projekty? (możesz wybrać więcej niż 1)",
+    "opcje": ["Medycyna", "Przemysł kosmiczny", "Informatyka", "Inne"],
+    "jednokrotny": false,
+    "tekst": "Miejsce na więcej szczegółów"
+  },
+  {
+    "typ": "uczelnia",
+    "pytanie": "W jakiej dziedzinie tworzysz projekty? (możesz wybrać więcej niż 1)",
+    "opcje": ["Medycyna", "Przemysł kosmiczny", "Informatyka", "Inne"],
+    "jednokrotny": false,
+    "tekst": "Miejsce na więcej szczegółów"
+  },
+  {
+    "typ": "inwestor",
+    "pytanie": "Jaki budżet jesteś w stanie zinwestować?",
+    "opcje": [
+      "0-10 000 zł",
+      "10 000-50 000 zł",
+      "50 000-100 000 zł",
+      "100 000-500 000 zł",
+      "więcej"
+    ],
+    "jednokrotny": true
+  },
+  {
+    "typ": "biznes",
+    "pytanie": "Jaki budżet potrzebujesz lub jesteś w stanie przekazać?",
+    "opcje": [
+      "0-10 000 zł",
+      "10 000-100 000 zł",
+      "100 000-500 000 zł",
+      "więcej"
+    ],
+    "jednokrotny": true
+  },
+  {
+    "typ": "uczelnia",
+    "pytanie": "Jaki budżet potrzebujesz?",
+    "opcje": [
+      "0-10 000 zł",
+      "10 000-100 000 zł",
+      "100 000-500 000 zł",
+      "więcej"
+    ],
+    "jednokrotny": true
+  },
+  {
+    "typ": "wszystkie",
+    "pytanie": "W jakiej lokalizacji szukasz ofert?",
+    "opcje": ["cały świat", "cały kraj", "lokalnie"],
+    "jednokrotny": true,
+    "tekst": "Miejsce na kraj/lokalizację"
+  },
+  {
+    "typ": "wszystkie",
+    "pytanie": "Masz uwagi lub coś ważnego do przekazania? To jest idealne miejsce!",
+    "opcje": [],
+    "jednokrotny": true,
+    "tekst": "Miejsce na Twoje uwagi"
+  }
+]
