@@ -1,10 +1,10 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import "./Survey.css";
 import questionsData from "../data/questions.json";
 
 const Survey = () => {
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
-  const [answers, setAnswers] = useState({});
+  const [answers, setAnswers] = useState([]);
   const [additionalText, setAdditionalText] = useState("");
   const [selectedType, setSelectedType] = useState(null);
 
@@ -13,6 +13,11 @@ const Survey = () => {
     "Z biznesu": "biznes",
     "Z środowiska uczelnianego": "uczelnia",
   };
+
+  useEffect(() => {
+    const initialAnswers = Array(5).fill(null);
+    setAnswers(initialAnswers);
+  }, []);
 
   const getFilteredQuestions = () => {
     if (!selectedType) {
@@ -27,33 +32,33 @@ const Survey = () => {
   const filteredQuestions = getFilteredQuestions();
   const currentQuestion = filteredQuestions[currentQuestionIndex];
 
-  const updateAnswer = (question, answer) => {
-    setAnswers((prev) => ({ ...prev, [question]: answer }));
-  };
-
   const handleOptionClick = (option) => {
-    const question = currentQuestion.pytanie;
+    const updatedAnswers = [...answers];
 
     if (currentQuestion.typ === "typ") {
       const interpretedType = typeMapping[option];
       setSelectedType(interpretedType);
+      updatedAnswers[currentQuestionIndex] = interpretedType;
+    } else if (currentQuestion.jednokrotny) {
+      updatedAnswers[currentQuestionIndex] = option;
+    } else {
+      const currentSelections = updatedAnswers[currentQuestionIndex] || [];
+      updatedAnswers[currentQuestionIndex] = currentSelections.includes(option)
+        ? currentSelections.filter((item) => item !== option)
+        : [...currentSelections, option];
     }
 
-    if (currentQuestion.jednokrotny) {
-      updateAnswer(question, option);
-    } else {
-      const currentAnswers = answers[question] || [];
-      const updatedAnswers = currentAnswers.includes(option)
-        ? currentAnswers.filter((item) => item !== option)
-        : [...currentAnswers, option];
-      updateAnswer(question, updatedAnswers);
-    }
+    setAnswers(updatedAnswers);
+    console.log("Current answers:", updatedAnswers, answers);
   };
 
   const handleTextInput = (event) => {
     const text = event.target.value;
     setAdditionalText(text);
-    updateAnswer(`${currentQuestion.pytanie}_tekst`, text);
+
+    const updatedAnswers = [...answers];
+    updatedAnswers[currentQuestionIndex] = text;
+    setAnswers(updatedAnswers);
   };
 
   const handleNext = () => {
@@ -63,17 +68,28 @@ const Survey = () => {
     }
   };
 
-  const handlePrevious = () => {
-    if (currentQuestionIndex > 0) {
-      setCurrentQuestionIndex((prev) => prev - 1);
-      setAdditionalText("");
-    }
-  };
-
   const handleFinish = () => {
-    console.log("Survey completed with answers:", answers);
-    alert("Dziękujemy za wypełnienie ankiety!");
-    // Additional logic to save answers (e.g., API call) can be added here
+    const surveyResult = {
+      type: answers[0],
+      industry: answers[1],
+      budget: answers[2],
+      location: answers[3],
+      notes: answers[4],
+    };
+
+    console.log("Survey completed with structured JSON:", surveyResult);
+
+    fetch("/api/save-survey", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(surveyResult),
+    })
+      .then((response) => response.json())
+      .then((data) => {
+        console.log("Server response:", data);
+        alert("Dziękujemy za wypełnienie ankiety!");
+      })
+      .catch((error) => console.error("Error submitting survey:", error));
   };
 
   return (
@@ -87,10 +103,10 @@ const Survey = () => {
               key={index}
               className={`option-button ${
                 currentQuestion.jednokrotny
-                  ? answers[currentQuestion.pytanie] === option
+                  ? answers[currentQuestionIndex] === option
                     ? "selected"
                     : ""
-                  : answers[currentQuestion.pytanie]?.includes(option)
+                  : answers[currentQuestionIndex]?.includes(option)
                   ? "selected"
                   : ""
               }`}
@@ -116,18 +132,10 @@ const Survey = () => {
       )}
 
       <div className="navigation-buttons">
-        <button onClick={handlePrevious} disabled={currentQuestionIndex === 0}>
-          Previous
-        </button>
-        {currentQuestion.opcje.length === 0 ? (
-          <button onClick={handleFinish}>Finish Survey</button>
+        {currentQuestionIndex === filteredQuestions.length - 1 ? (
+          <button onClick={handleFinish}>Zakończ</button>
         ) : (
-          <button
-            onClick={handleNext}
-            disabled={currentQuestionIndex === filteredQuestions.length - 1}
-          >
-            Next
-          </button>
+          <button onClick={handleNext}>Dalej</button>
         )}
       </div>
     </div>

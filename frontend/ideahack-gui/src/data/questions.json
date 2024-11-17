@@ -70,9 +70,9 @@
   },
   {
     "typ": "wszystkie",
-    "pytanie": "Masz uwagi lub coś ważnego do przekazania? To jest idealne miejsce!",
+    "pytanie": "Zamieść poniżej opis swojej działalności lub pomysłu na projekt",
     "opcje": [],
     "jednokrotny": true,
-    "tekst": "Miejsce na Twoje uwagi"
+    "tekst": "Miejsce na opis"
   }
 ]

@@ -51,7 +51,7 @@
   padding: 8px 16px;
   border: none;
   border-radius: 5px;
-  background-color: #007bff;
+  background-color: #308d90;
   color: white;
   font-size: 16px;
   cursor: pointer;
@@ -60,7 +60,18 @@
 }
 
 .login-button:hover {
-  background-color: #0056b3;
+  background-color: #31aeb3;
+}
+
+.logo-button {
+  font-size: 20px;
+  font-weight: bold;
+  color: white;
+  background-color: #31afb300;
+}
+
+.logo-button:hover {
+  background-color: #31afb300;
 }
 
 

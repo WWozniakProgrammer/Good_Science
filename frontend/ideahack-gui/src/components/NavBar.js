@@ -6,7 +6,11 @@ const NavBar = () => {
   return (
     <nav className="navbar">
       <div className="navbar-content">
-        <div className="logo">MatchAI 🐨</div>
+        <div className="logo">
+          <Link to="/">
+            <button className="logo-button">MatchAI 🐨</button>
+          </Link>
+        </div>
         <ul className="nav-links">
           <li>
             <Link to="/about">O Nas</Link>
