@@ -1,5 +1,5 @@
 from flask import Flask, jsonify, request
-from model.functions import validate_user_input, create_user_profile, get_embeddings, calculate_similarity, compare_industries
+from model.functions import validate_user_input, create_user_profile, get_embeddings, calculate_similarity, compare_industries, calculate_weighted_similarity
 from transformers import AutoTokenizer, AutoModel
 #from database.data_base import pobierz_obiekty_po_typie
 from database.data_base import DatabaseManager
@@ -198,54 +198,53 @@ def get_user_profile_by_id(user_id):
 def find_similar_targets():
     try:
         user_data = request.json
-        print(f"Received user data: {user_data}")
+        validate_user_input(user_data)
         
-        validate_user_input(user_data)  # Sprawdzenie poprawności danych
-        user_profile = create_user_profile(user_data)  # Tworzymy profil użytkownika
+        # Tworzymy profil użytkownika
+        user_profile = create_user_profile(user_data)
+        user_embedding = get_embeddings(user_profile)
+        print("User profile:", user_profile)  # Logowanie embeddingu użytkownika
         
-
-        user_embedding = get_embeddings(user_profile)  # Generujemy embedding dla profilu użytkownika
-
-        target_types = user_data.get("target_types", ["company", "academic", "investor"])  # Jeśli brak typów, bierzemy wszystkie
-        print(f"Target types for search: {target_types}")
-        
+        target_types = user_data.get("target_types", ["company", "academic", "investor"])
         result = {}
 
-        #for target_type in target_types:
-           # print(f"Searching for {target_type}s...")
-           # target_db = db.pobierz_obiekty_po_typie(target_type)  # Pobieramy obiekty z bazy danych dla danego typu
-            #similarities = []
+        for target_type in target_types:
+            target_db = db.pobierz_obiekty_po_typie(target_type)
+            try:
+                target_users = json.loads(target_db)
+            except json.JSONDecodeError:
+                raise ValueError(f"Data fetched for {target_type} is not valid JSON: {target_db}")
             
-           # for target in target_db:
-              #  target_profile = create_user_profile(target)  # Tworzymy profil dla targetu
-              #  target_embedding = get_embeddings(target_profile)  # Generujemy embedding dla targetu
+            print("Targetet users:", target_users)
+
+            similarities = []
+            for target in target_users:
+                target_profile = create_user_profile(target)
+                print("Targetet profile:", target_profile)
+                target_embedding = get_embeddings(target_profile)
+                #print("Target embedding:", target_embedding)  # Logowanie embeddingu targetu
                 
-                #Obliczamy podobieństwo
-               # similarity_score = calculate_similarity(user_embedding, target_embedding)
+                # Obliczamy tylko podobieństwo kosinusowe
+                similarity_score = calculate_similarity(user_embedding, target_embedding)
                 
-                # Opcjonalnie: Możemy dodać dodatkowe metryki, np. porównanie branż
-              #  industry_similarity = compare_industries(user_data['industry'], target['industry'])
-               # final_similarity = (similarity_score + industry_similarity) / 2  # Możemy zbalansować oba te wyniki
-                
-               # similarities.append({
-                #    "target_id": target['id'],
-                #    "similarity_score": final_similarity
-                #})
-            
-            # Sortujemy wyniki i wybieramy top 5
-            #top_5_similar = sorted(similarities, key=lambda x: x['similarity_score'], reverse=True)[:5]
-            
-            # Dodajemy wyniki do wyników dla danego typu
-            #result[target_type] = top_5_similar
-        return jsonify(target_types)
-        #return jsonify(result)  # Zwracamy 5 najlepszych podobnych targetów dla każdego typu
+                similarities.append({
+                    "id": target.get('id'),
+                    "similarity": similarity_score
+                })
+
+            # Sortowanie wyników i zwrócenie najlepszych
+            top_5_similar = sorted(similarities, key=lambda x: x['similarity'], reverse=True)[:5]
+            result[target_type] = top_5_similar
+
+        return jsonify(result)
 
     except ValueError as e:
-        print(f"Validation error: {str(e)}")
         return jsonify({"error": str(e)}), 400
     except Exception as e:
-        print(f"General error: {str(e)}")
         return jsonify({"error": str(e)}), 500
+
+
+
 
 
 

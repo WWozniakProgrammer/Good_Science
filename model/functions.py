@@ -2,6 +2,9 @@ from transformers import AutoTokenizer, AutoModel
 import torch
 from sklearn.metrics.pairwise import cosine_similarity
 import os
+import json
+from flask import Flask, jsonify, request
+from database.data_base import DatabaseManager
 
 # Absolutna ścieżka do folderu
 local_model_dir = os.path.join(os.path.dirname(__file__), 'models', 'bert-base-polish-cased-v1')
@@ -17,56 +20,57 @@ def get_embeddings(text):
     embeddings = outputs.last_hidden_state.mean(dim=1)  # Używamy średniej z ostatniej warstwy
     return embeddings
 
+def map_fields_to_english(user_data):
+    field_map = {
+        'typ': 'type',
+        'branze': 'industry',
+        'budzet': 'budget',
+        'lokalizacja': 'location',
+        'uwagi': 'notes'
+    }
+    
+    # Tworzymy nowy słownik z zamienionymi polskimi nazwami na angielskie
+    mapped_data = {}
+    for key, value in user_data.items():
+        # Sprawdzamy, czy pole istnieje w mapowaniu i zamieniamy je na angielskie
+        if key in field_map:
+            mapped_data[field_map[key]] = value
+        else:
+            mapped_data[key] = value  # Zostawiamy bez zmian, jeśli pole nie jest mapowane
+    
+    return mapped_data
 
-# Funkcja tworząca profil użytkownika w zależności od jego typu
-def create_user_profile(user):
-    """
-    Tworzy tekstowy profil użytkownika na podstawie danych z ankiety.
-    """
-    if user['type'] == 'company':
-        # Profil dla firmy
-        profile_text = f"Typ użytkownika: Firma. "
-        profile_text += f"Branża: {user['industry']}. "
-        profile_text += f"Budżet: {user['budget']}. "
-        profile_text += f"Lokalizacja: {user['location']}. "
-        profile_text += f"Uwagi: {user.get('notes', '')}."
-    
-    elif user['type'] == 'academic':
-        # Profil dla akademika
-        profile_text = f"Typ użytkownika: Akademik. "
-        profile_text += f"Branża: {user['industry']}. "
-        profile_text += f"Budżet: {user['budget']}. "
-        profile_text += f"Lokalizacja: {user['location']}. "
-        profile_text += f"Uwagi: {user.get('notes', '')}."
-    
-    elif user['type'] == 'investor':
-        # Profil dla inwestora
-        profile_text = f"Typ użytkownika: Inwestor. "
-        profile_text += f"Branża: {user['industry']}. "
-        profile_text += f"Budżet: {user['budget']}. "
-        profile_text += f"Lokalizacja: {user['location']}. "
-        profile_text += f"Uwagi: {user.get('notes', '')}."
-    
-    return profile_text
-
+# Walidacja danych wejściowych
 def validate_user_input(user):
-    """
-    Sprawdza, czy w danych użytkownika znajdują się wszystkie wymagane pola.
-    """
     required_fields = ['type', 'industry', 'budget', 'location']
-    
-    # Sprawdzanie obecności wymaganych pól
     for field in required_fields:
         if field not in user:
             raise ValueError(f"Brak wymaganego pola: {field}")
+        if field == 'industry' and not isinstance(user['industry'], list):
+            raise ValueError("Pole 'industry' powinno być listą.")
     
-    # Sprawdzanie poprawności typu
     if user['type'] not in ['company', 'academic', 'investor']:
-        raise ValueError("Nieprawidłowy typ użytkownika. Możliwe wartości: 'company', 'academic', 'investor'.")
-    
+        raise ValueError("Nieprawidłowy typ użytkownika.")
     return True
 
-# Funkcja obliczająca podobieństwo kosinusowe między dwoma embeddingami
+# Tworzenie profilu użytkownika
+def create_user_profile(user):
+    try:
+        validate_user_input(user)  # Walidacja danych użytkownika
+    except ValueError as e:
+        return f"Błąd walidacji: {e}"  # Zwracamy komunikat o błędzie walidacji
+    
+    # Tworzymy profil użytkownika
+    profile_text = f"Typ użytkownika: {user['type'].capitalize()}. "
+    profile_text += f"Branża: {', '.join(user['industry'])}. "
+    profile_text += f"Budżet: {user['budget']}. "
+    profile_text += f"Lokalizacja: {user['location']}. "
+    profile_text += f"Uwagi: {user.get('notes', '')}."
+    
+    print(f"User profile text: {profile_text}")  # Logowanie profilu użytkownika
+    return profile_text
+
+# Funkcja obliczająca podobieństwo kosinusowe
 def calculate_similarity(embedding1, embedding2):
     """
     Oblicza podobieństwo kosinusowe między dwoma embeddingami.
@@ -75,74 +79,7 @@ def calculate_similarity(embedding1, embedding2):
     
     return float(similarity)
 
-
-
-def create_user_profile(user):
-    """
-    Tworzy tekstowy profil użytkownika na podstawie danych z ankiety lub bazy danych.
-    """
-    try:
-        validate_user_input(user)  # Sprawdź, czy dane są poprawne
-    except ValueError as e:
-        return f"Błąd walidacji: {e}"  # Zwróć komunikat o błędzie walidacji
-    
-    # Debugowanie: Wyświetl dane wejściowe przed generowaniem profilu
-    print(f"Tworzenie profilu dla: {user}")
-
-    user_type = user['type']
-    
-    # Generowanie profilu w zależności od typu użytkownika
-    if user_type == 'company':
-        profile_text = f"Typ użytkownika: Firma. "
-        profile_text += f"Branża: {user['industry']}. "
-        profile_text += f"Budżet: {user['budget']}. "
-        profile_text += f"Lokalizacja: {user['location']}. "
-        profile_text += f"Uwagi: {user.get('notes', '')}."
-    elif user_type == 'academic':
-        profile_text = f"Typ użytkownika: Akademik. "
-        profile_text += f"Branża: {user['industry']}. "
-        profile_text += f"Budżet: {user['budget']}. "
-        profile_text += f"Lokalizacja: {user['location']}. "
-        profile_text += f"Uwagi: {user.get('notes', '')}."
-    elif user_type == 'investor':
-        profile_text = f"Typ użytkownika: Inwestor. "
-        profile_text += f"Branża: {user['industry']}. "
-        profile_text += f"Budżet: {user['budget']}. "
-        profile_text += f"Lokalizacja: {user['location']}. "
-        profile_text += f"Uwagi: {user.get('notes', '')}."
-    else:
-        return "Nieprawidłowy typ użytkownika."
-    
-    return profile_text
-
-def create_profile_for_type(user_type, user):
-    """
-    Funkcja tworzy profil na podstawie typu użytkownika.
-    """
-    profile_text = f"Typ użytkownika: {user_type.capitalize()}. "
-    profile_text += f"Branża: {user['industry']}. "
-    profile_text += f"Budżet: {user['budget']}. "
-    profile_text += f"Lokalizacja: {user['location']}. "
-    profile_text += f"Uwagi: {user.get('notes', '')}."
-    return profile_text
-
-def get_user_profile(user):
-    """
-    Zwraca profil użytkownika w formacie JSON, aby frontend mógł go łatwo wykorzystać.
-    """
-    try:
-        validate_user_input(user)
-    except ValueError as e:
-        return {"error": str(e)}  # Zwróć błąd walidacji w formacie JSON
-    
-    user_type = user['type']
-    profile_text = create_profile_for_type(user_type, user)
-    
-    return {
-        "profile_text": profile_text,
-        "user_data": user  # Możesz zwrócić również pełne dane użytkownika
-    }
-
+# Funkcja porównująca branże
 def compare_industries(industry_user, industry_target):
     """
     Funkcja porównuje branże dwóch użytkowników, które mogą być zapisane jako tablice.
@@ -163,3 +100,31 @@ def compare_industries(industry_user, industry_target):
     
     similarity = len(common_industries) / len(total_industries)
     return similarity
+
+# Funkcja porównująca lokalizacje
+def compare_location(location_user, location_target):
+    location_similarity = 1.0 if location_user.lower() == location_target.lower() else 0.0
+    print(f"Location similarity: {location_similarity}")
+    return location_similarity
+
+# Funkcja porównująca budżet
+def compare_budget(budget_user, budget_target):
+    budget_similarity = 1.0 if budget_user == budget_target else 0.0
+    print(f"Budget similarity: {budget_similarity}")
+    return budget_similarity
+
+# Funkcja obliczająca podobieństwo z wagami
+def calculate_weighted_similarity(user_embedding, target_embedding, user_data, target):
+    similarity_score = calculate_similarity(user_embedding, target_embedding)
+    
+    industry_similarity = compare_industries(user_data.get('industry', []), target.get('industry', []))
+    location_similarity = compare_location(user_data.get('location', ''), target.get('location', ''))
+    budget_similarity = compare_budget(user_data.get('budget', ''), target.get('budget', ''))
+
+    weighted_similarity = (0.5 * similarity_score + 0.2 * industry_similarity 
+                           + 0.2 * location_similarity + 0.1 * budget_similarity)
+    
+    print(f"Weighted similarity: {weighted_similarity}")
+    return weighted_similarity
+
+

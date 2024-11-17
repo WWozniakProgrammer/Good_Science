@@ -102,29 +102,35 @@ class DatabaseManager:
             return json.dumps({"status": "success", "data": uzytkownik}, ensure_ascii=False, indent=4)
         return json.dumps({"status": "error", "message": "Użytkownik nie znaleziony"}, ensure_ascii=False)
 
-    def pobierz_obiekty_po_typie(self, typ: str) -> str:
-        """Zwraca wszystkie obiekty o danym typie."""
+
+    def pobierz_obiekty_po_typie(self, target_type: str) -> str:
+        """
+        Pobiera obiekty z bazy danych na podstawie typu (np. 'company', 'academic', 'investor').
+        Zwraca listę obiektów w formacie JSON.
+        """
         with sqlite3.connect(self.db_name) as conn:
             cursor = conn.cursor()
-            cursor.execute('SELECT id, typ, branże, budżet, lokalizacja, uwagi FROM uzytkownicy WHERE typ = ?', (typ,))
-            wyniki = cursor.fetchall()
+            cursor.execute("SELECT * FROM uzytkownicy WHERE typ = ?", (target_type,))
+            wiersze = cursor.fetchall()
 
-        if not wyniki:
-            return json.dumps({"status": "error", "message": f"Brak obiektów o typie: {typ}"}, ensure_ascii=False)
+        # Przetwarzanie wyników na listę słowników
+        obiekty = []
+        for wiersz in wiersze:
+            obiekty.append({
+                'id': wiersz[0],
+                'typ': wiersz[1],
+                'nazwa': wiersz[2],
+                'email': wiersz[3],
+                'haslo': wiersz[4],
+                'branze': json.loads(wiersz[5]),
+                'budzet': wiersz[6],
+                'lokalizacja': wiersz[7],
+                'uwagi': wiersz[8],
+                'token': wiersz[9]
+            })
 
-        obiekty = [
-            {
-                "id": wiersz[0],
-                "typ": wiersz[1],
-                "industry": ", ".join(json.loads(wiersz[2])),
-                "budget": wiersz[3],
-                "location": wiersz[4],
-                "notes": wiersz[5]
-            }
-            for wiersz in wyniki
-        ]
-        return json.dumps({"status": "success", "data": obiekty}, ensure_ascii=False, indent=4)
-
+        # Zwracamy dane w formacie JSON
+        return json.dumps(obiekty, ensure_ascii=False)
     
     def sprawdz_uzytkownika(self, email: str, haslo: str):
         """Sprawdza, czy użytkownik istnieje w bazie na podstawie emaila i hasła."""
