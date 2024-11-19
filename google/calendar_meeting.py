@@ -215,7 +215,7 @@ if __name__ == "__main__":
 
     # Konfiguracja wiadomości e-mail
     nadawca_email = "goodscience682@gmail.com"
-    odbiorca_email = "wojciech.2943@gmail.com"
+    odbiorca_email = ""
     temat_email = "Testowy e-mail z Gmail API - manualna autoryzacja"
     tresc_email = "To jest testowy e-mail wysłany przy użyciu Gmail API z manualną autoryzacją."
 
@@ -233,7 +233,7 @@ if __name__ == "__main__":
     opis_spotkania = "Omówienie postępów projektu i kolejnych kroków."
     czas_rozpoczecia = "2024-11-25T10:00:00+02:00"  # Upewnij się, że czas jest w przyszłości
     czas_zakonczenia = "2024-11-25T11:00:00+02:00"
-    zaproszeni_uzytkownicy = ["woj1977007@gmail.com"]
+    zaproszeni_uzytkownicy = [""]
 
     # Tworzenie wydarzenia
     calendar_manager.create_event(temat_spotkania, opis_spotkania, czas_rozpoczecia, czas_zakonczenia, zaproszeni_uzytkownicy)
