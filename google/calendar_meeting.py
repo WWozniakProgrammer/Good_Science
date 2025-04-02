@@ -49,11 +49,11 @@ class TokenManager:
         if not self.flow:
             raise RuntimeError("Najpierw wywołaj `get_authorization_url()`.")
 
-        # Wymiana kodu autoryzacyjnego na token
+    
         self.flow.fetch_token(code=auth_code)
         creds = self.flow.credentials
 
-        # Zapisuje token do pliku
+
         with open(self.token_file, "w") as token_file:
             token_file.write(creds.to_json())
         print("Token został zapisany do pliku token.json.")
@@ -67,11 +67,11 @@ class TokenManager:
         """
         creds = None
 
-        # Jeśli istnieje plik z tokenem, próbuje go załadować
+    
         if os.path.exists(self.token_file):
             creds = Credentials.from_authorized_user_file(self.token_file, self.SCOPES)
 
-        # Jeśli token nie istnieje, jest nieważny lub nie ma wymaganych zakresów
+     
         if not creds or not creds.valid or not creds.has_scopes(self.SCOPES):
             if creds and creds.expired and creds.refresh_token:
                 try:
@@ -111,10 +111,10 @@ class EmailSender:
             raise RuntimeError("Nieautoryzowany. Najpierw wywołaj `authenticate()`.")
 
         try:
-            # Tworzy wiadomość
+     
             message = self.create_message(sender, recipient, subject, body)
 
-            # Wysyła wiadomość za pomocą Gmail API
+      
             sent_message = self.service.users().messages().send(userId="me", body=message).execute()
             print(f"Wiadomość została wysłana: {sent_message['id']}")
             return sent_message
@@ -137,7 +137,7 @@ class CalendarManager:
         creds = self.token_manager.get_token()
         self.service = build("calendar", "v3", credentials=creds)
 
-        # Pobieranie adresu e-mail zalogowanego użytkownika
+     
         user_info_service = build('oauth2', 'v2', credentials=creds)
         user_info = user_info_service.userinfo().get().execute()
         self.user_email = user_info.get('email')
@@ -203,37 +203,37 @@ if __name__ == "__main__":
         auth_url = token_manager.get_authorization_url()
         print(f"Otwórz ten URL w przeglądarce, aby się zalogować:\n{auth_url}")
 
-        # Użytkownik wkleja kod autoryzacyjny
+
         auth_code = input("Wprowadź kod autoryzacyjny z przeglądarki: ")
         creds = token_manager.fetch_token(auth_code)
 
-    # Tworzenie klienta wysyłania e-maili
+
     email_sender = EmailSender(token_manager)
 
-    # Autoryzacja
+
     email_sender.authenticate()
 
-    # Konfiguracja wiadomości e-mail
-    nadawca_email = "goodscience682@gmail.com"
+
+    nadawca_email = " "
     odbiorca_email = ""
     temat_email = "Testowy e-mail z Gmail API - manualna autoryzacja"
     tresc_email = "To jest testowy e-mail wysłany przy użyciu Gmail API z manualną autoryzacją."
 
-    # Wysyłanie wiadomości
+
     email_sender.send_email(nadawca_email, odbiorca_email, temat_email, tresc_email)
 
-    # Tworzenie menedżera kalendarza
+
     calendar_manager = CalendarManager(token_manager)
 
-    # Autoryzacja i pobranie e-maila użytkownika
+
     calendar_manager.authenticate()
 
-    # Konfiguracja spotkania
+
     temat_spotkania = "Trolololo"
     opis_spotkania = "Omówienie postępów projektu i kolejnych kroków."
     czas_rozpoczecia = "2024-11-25T10:00:00+02:00"  # Upewnij się, że czas jest w przyszłości
     czas_zakonczenia = "2024-11-25T11:00:00+02:00"
     zaproszeni_uzytkownicy = [""]
 
-    # Tworzenie wydarzenia
+  
     calendar_manager.create_event(temat_spotkania, opis_spotkania, czas_rozpoczecia, czas_zakonczenia, zaproszeni_uzytkownicy)
