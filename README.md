@@ -16,38 +16,5 @@ IDEAHACK 2024 postawił przed zespołami zadanie stworzenia systemu do kojarze
 * **Generator danych demo** do szybkiego prototypowania :contentReference[oaicite:8]{index=8}  
 * **Zestaw testów PyTest** pokrywających kluczowe funkcje ML :contentReference[oaicite:10]{index=10}  
 
----
+prace trwają...
 
-## Spis treści
-1. [Wymagania](#wymagania)  
-2. [Instalacja](#instalacja)  
-3. [Uruchamianie API](#uruchamianie-api)  
-4. [Przykłady wywołań](#przykłady-wywołań)  
-5. [Struktura repozytorium](#struktura-repozytorium)  
-6. [Testy](#testy)  
-7. [Integracja Google](#integracja-google)  
-8. [Roadmapa](#roadmapa)  
-9. [Zespół](#zespół)  
-10. [Licencja](#licencja)  
-
----
-
-## Wymagania
-
-* Python ≥ 3.9  
-* zależności z `requirements.txt` :contentReference[oaicite:12]{index=12}  
-* konto Google Cloud + plik `credentials.json` (dla Gmail / Calendar)  
-
----
-
-## Instalacja
-
-```bash
-git clone https://github.com/WWozniakProgrammer/IDEAHACK_2024_Good_Science.git
-cd IDEAHACK_2024_Good_Science
-
-python -m venv .venv && source .venv/bin/activate
-pip install -r requirements.txt        # instalacja pakietów
-
-# jednorazowe pobranie polskiego BERT‑a (~400 MB)
-python model/download_model.py         # :contentReference[oaicite:14]{index=14}
